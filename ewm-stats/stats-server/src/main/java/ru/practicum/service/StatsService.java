@@ -1,15 +1,13 @@
 package ru.practicum.service;
 
-import ru.practicum.HitDto;
-import ru.practicum.StatsDto;
-
-import java.time.LocalDateTime;
 import java.util.List;
+import ru.practicum.HitDto;
+import ru.practicum.ViewStats;
+import ru.practicum.specification.StatsFilter;
 
 public interface StatsService {
 
     void addHit(HitDto hitDto);
 
-    List<StatsDto> getStats(LocalDateTime start, LocalDateTime end,
-                            List<String> uris, Boolean unique);
+    List<ViewStats> getStats(StatsFilter filter, Boolean unique);
 }

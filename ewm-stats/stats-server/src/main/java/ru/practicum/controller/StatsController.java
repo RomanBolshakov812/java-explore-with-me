@@ -1,9 +1,9 @@
 package ru.practicum.controller;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -11,10 +11,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.HitDto;
-import ru.practicum.StatsDto;
+import ru.practicum.ViewStats;
 import ru.practicum.service.StatsService;
-import java.time.format.DateTimeFormatter;
-
+import ru.practicum.specification.StatsFilter;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,9 +31,8 @@ public class StatsController {
     }
 
     @GetMapping(path = "/stats")
-    public ResponseEntity<List<StatsDto>> getStats(
-            @RequestParam @NonNull String start,
-            @RequestParam @NonNull String end,
+    public ResponseEntity<List<ViewStats>> getStats(
+            @RequestParam("start") @NonNull String start, String end,
             @RequestParam(required = false) List<String> uris,
             @RequestParam(defaultValue = "false") Boolean unique) {
 
@@ -47,7 +45,12 @@ public class StatsController {
             return ResponseEntity.badRequest().build();
         }
 
-        List<StatsDto> viewStats = statsService.getStats(startDateTime, endDateTime, uris, unique);
+        StatsFilter filter = new StatsFilter();
+        filter.setStart(startDateTime);
+        filter.setEnd(endDateTime);
+        filter.setUris(uris);
+
+        List<ViewStats> viewStats = statsService.getStats(filter, unique);
 
         return ResponseEntity.ok(viewStats);
     }

@@ -2,9 +2,10 @@ package ru.practicum.mapper;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
+import java.util.*;
+import java.util.stream.Collectors;
 import ru.practicum.HitDto;
-import ru.practicum.StatsDto;
+import ru.practicum.ViewStats;
 import ru.practicum.model.Hit;
 
 public class HitMapper {
@@ -17,24 +18,51 @@ public class HitMapper {
         hit.setApp(hitDto.getApp());
         hit.setUri(hitDto.getUri());
         hit.setIp(hitDto.getIp());
-        hit.setTimeStamp(LocalDateTime.parse(hitDto.getTimestamp(), DATE_TIME_FORMATTER));
+        hit.setTimestamp(LocalDateTime.parse(hitDto.getTimestamp(), DATE_TIME_FORMATTER));
         return hit;
     }
 
-    public static HitDto toHitDto(Hit hit) {// МОЖЕТ НЕ ПОНАДОБИТСЯ ??????????????????????????????????????????????????????
+    public static HitDto toHitDto(Hit hit) {
         return new HitDto(
                 hit.getApp(),
                 hit.getUri(),
                 hit.getIp(),
-                hit.getTimeStamp().toString()
+                hit.getTimestamp().toString()
         );
     }
 
-    public static StatsDto viewStatsDto(Hit hit, Integer hits) {
-        return new StatsDto(
-                hit.getApp(),
-                hit.getUri(),
-                hits
-        );
+    public static List<HitDto> toHitDtoList(List<Hit> hits) {
+        List<HitDto> result = new ArrayList<>();
+        for (Hit hit : hits) {
+            result.add(toHitDto(hit));
+        }
+        return result;
+    }
+
+    public static List<ViewStats> toViewStatsList(List<Hit> hitList, Boolean unique) {
+
+        List<ViewStats> viewStatsList = new ArrayList<>();
+        Map<String, Long> urisAndHitsMap = new HashMap<>();
+
+        if (unique) {
+            Map<String, Set<String>> hitsWithUniqueIp = hitList.stream()
+                    .collect(Collectors.groupingBy(Hit::getUri,
+                            Collectors.mapping(Hit::getIp, Collectors.toSet())));
+            for (String uri : hitsWithUniqueIp.keySet()) {
+                urisAndHitsMap.put(uri, (long) (hitsWithUniqueIp.get(uri).size()));
+            }
+        } else {
+            urisAndHitsMap = hitList.stream()
+                    .collect(Collectors.groupingBy(Hit::getUri, Collectors.counting()));
+        }
+
+        for (String uri : urisAndHitsMap.keySet()) {
+            ViewStats viewStats = new ViewStats();
+            viewStats.setApp("ewm-main-service");
+            viewStats.setUri(uri);
+            viewStats.setHits(urisAndHitsMap.get(uri));
+            viewStatsList.add(viewStats);
+        }
+        return viewStatsList;
     }
 }

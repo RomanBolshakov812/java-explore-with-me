@@ -1,47 +1,37 @@
 package ru.practicum.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import ru.practicum.HitDto;
-import ru.practicum.StatsDto;
+import ru.practicum.ViewStats;
 import ru.practicum.mapper.HitMapper;
 import ru.practicum.model.Hit;
-import ru.practicum.repository.StatsRepository;
-import ru.practicum.service.StatsService;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import ru.practicum.repository.HitRepository;
+import ru.practicum.specification.HitSpecification;
+import ru.practicum.specification.StatsFilter;
 
 @Service
 @RequiredArgsConstructor
 public class StatsServiceImpl implements StatsService {
 
-    private final StatsRepository statsRepository;
+    @Autowired
+    private final HitRepository hitRepository;
+    @Autowired
+    private final HitSpecification hitSpecification;
 
     @Override
     public void addHit(HitDto hitDto) {
         Hit hit = HitMapper.toHit(hitDto);
-        statsRepository.save(hit);
+        hitRepository.save(hit);
     }
 
     @Override
-    public List<StatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-
-        //Pageable page = hitsToPage(from, size);
-        if (uris == null) {
-            uris = new ArrayList<>();
-        }
-
-        return statsRepository.getStats(start, end, uris, unique).toList();
+    public List<ViewStats> getStats(StatsFilter filter, Boolean unique) {
+        Specification<Hit> specification = hitSpecification.build(filter);
+        List<Hit> hitList = hitRepository.findAll(specification);
+        return HitMapper.toViewStatsList(hitList, unique);
     }
-
-//    private  Pageable hitsToPage(Integer from, Integer size) {
-//        Sort sort = Sort.by(Sort.Direction.ASC, "hits");
-//        int startPage = from / size;
-//        return PageRequest.of(startPage, size, sort);
-//    }
 }

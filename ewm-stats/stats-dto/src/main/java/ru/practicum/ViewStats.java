@@ -2,13 +2,13 @@ package ru.practicum;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
-//@NoArgsConstructor
+@NoArgsConstructor
 @AllArgsConstructor
-public class HitDto {
-    private String app;
+public class ViewStats {
     private String uri;
-    private String ip;
-    private String timestamp;
+    private String app;
+    private long hits;
 }

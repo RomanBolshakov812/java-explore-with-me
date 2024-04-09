@@ -1,11 +1,10 @@
 package ru.practicum.model;
 
+import java.time.LocalDateTime;
+import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -16,7 +15,7 @@ public class Hit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Integer id;// А НУЖНО ЛИ ВООБЩЕ ЦИФРОВОЕ id ?????????????????????????????????????????????????????????????????????????
+    private Integer id;
 
     @Column(name = "app", nullable = false)
     private String app;
@@ -27,6 +26,6 @@ public class Hit {
     @Column(name = "ip", nullable = false)
     private String ip;
 
-    @Column(name = "time_point", nullable = false)
-    private LocalDateTime timeStamp;//  ВОЗМОЖНО ПРИДЕТСЯ ПЕРЕДЕЛАТЬ В СТРОКУ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    @Column(name = "ts", nullable = false)
+    private LocalDateTime timestamp;
 }

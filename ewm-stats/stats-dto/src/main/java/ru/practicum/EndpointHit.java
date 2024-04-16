@@ -4,9 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-//@NoArgsConstructor
 @AllArgsConstructor
-public class HitDto {
+public class EndpointHit {
     private String app;
     private String uri;
     private String ip;

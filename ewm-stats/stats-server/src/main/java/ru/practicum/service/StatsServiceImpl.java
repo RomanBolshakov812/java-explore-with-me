@@ -3,9 +3,11 @@ package ru.practicum.service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import ru.practicum.HitDto;
+import ru.practicum.EndpointHit;
 import ru.practicum.ViewStats;
 import ru.practicum.mapper.HitMapper;
 import ru.practicum.model.Hit;
@@ -23,15 +25,22 @@ public class StatsServiceImpl implements StatsService {
     private final HitSpecification hitSpecification;
 
     @Override
-    public void addHit(HitDto hitDto) {
-        Hit hit = HitMapper.toHit(hitDto);
+    public void addHit(EndpointHit endpointHit) {
+        Hit hit = HitMapper.toHit(endpointHit);
         hitRepository.save(hit);
     }
 
     @Override
-    public List<ViewStats> getStats(StatsFilter filter, Boolean unique) {
+    public List<ViewStats> getStats(StatsFilter filter, Boolean unique,
+                                    Integer from, Integer size) {
+        Pageable page = statsToPage(from, size);
         Specification<Hit> specification = hitSpecification.build(filter);
-        List<Hit> hitList = hitRepository.findAll(specification);
+        List<Hit> hitList = hitRepository.findAll(specification, page).toList();
         return HitMapper.toViewStatsList(hitList, unique);
+    }
+
+    private  Pageable statsToPage(Integer from, Integer size) {
+        int startPage = from / size;
+        return PageRequest.of(startPage, size);
     }
 }

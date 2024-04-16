@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-import ru.practicum.HitDto;
+import ru.practicum.EndpointHit;
 import ru.practicum.ViewStats;
 import ru.practicum.model.Hit;
 
@@ -13,17 +13,17 @@ public class HitMapper {
     private static final DateTimeFormatter DATE_TIME_FORMATTER
             = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static Hit toHit(HitDto hitDto) {
+    public static Hit toHit(EndpointHit endpointHit) {
         Hit hit = new Hit();
-        hit.setApp(hitDto.getApp());
-        hit.setUri(hitDto.getUri());
-        hit.setIp(hitDto.getIp());
-        hit.setTimestamp(LocalDateTime.parse(hitDto.getTimestamp(), DATE_TIME_FORMATTER));
+        hit.setApp(endpointHit.getApp());
+        hit.setUri(endpointHit.getUri());
+        hit.setIp(endpointHit.getIp());
+        hit.setTimestamp(LocalDateTime.parse(endpointHit.getTimestamp(), DATE_TIME_FORMATTER));
         return hit;
     }
 
-    public static HitDto toHitDto(Hit hit) {
-        return new HitDto(
+    public static EndpointHit toHitDto(Hit hit) {
+        return new EndpointHit(
                 hit.getApp(),
                 hit.getUri(),
                 hit.getIp(),
@@ -31,8 +31,8 @@ public class HitMapper {
         );
     }
 
-    public static List<HitDto> toHitDtoList(List<Hit> hits) {
-        List<HitDto> result = new ArrayList<>();
+    public static List<EndpointHit> toHitDtoList(List<Hit> hits) {
+        List<EndpointHit> result = new ArrayList<>();
         for (Hit hit : hits) {
             result.add(toHitDto(hit));
         }
@@ -63,6 +63,8 @@ public class HitMapper {
             viewStats.setHits(urisAndHitsMap.get(uri));
             viewStatsList.add(viewStats);
         }
+
+        viewStatsList.sort(Comparator.comparingLong(ViewStats::getHits).reversed());
         return viewStatsList;
     }
 }

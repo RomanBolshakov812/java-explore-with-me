@@ -2,6 +2,7 @@ package ru.practicum.specification;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import javax.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import ru.practicum.model.Hit;
@@ -19,8 +20,12 @@ public class HitSpecification {
     }
 
     private Specification<Hit> getByUri(List<String> uris) {
+
         if (uris != null) {
-            return (root, query, cb) -> cb.equal(root.get("uri"), uris);
+            return (root, query, cb) -> {
+                Path<String> uri = root.get("uri");
+                return uri.in(uris);
+            };
         } else {
             return null;
         }

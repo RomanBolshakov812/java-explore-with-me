@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>ru.practicum</groupId>
-        <artifactId>stats-server</artifactId>
+        <artifactId>ewm-stats</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>client</artifactId>
+    <artifactId>stats-client</artifactId>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,7 +18,7 @@
     <dependencies>
         <dependency>
             <groupId>ru.practicum</groupId>
-            <artifactId>dto</artifactId>
+            <artifactId>stats-dto</artifactId>
             <version>${project.version}</version>
         </dependency>
 

@@ -27,6 +27,32 @@ services:
       - SPRING_DATASOURCE_PASSWORD:iamroot
       #- TZ=Europe/Moscow
 
+  ewm-main-db:
+    image: postgres:14-alpine
+    container_name: ewm-main-db
+    ports:
+      - "6543:5433"
+    environment:
+      - POSTGRES_DB=ewm-main
+      - POSTGRES_USER=user1
+      - POSTGRES_PASSWORD=iamroot
+      #- TZ=Europe/Moscow
+
+  main-service:
+    build: main-service
+    image: main-service-image
+    container_name: ewm-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - ewm-main-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-main-db:5433/ewm-main
+      - SPRING_DRIVER_CLASS_NAME:org.postgresql.Driver
+      - SPRING_DATASOURCE_USERNAME:user1
+      - SPRING_DATASOURCE_PASSWORD:iamroot
+      #- TZ=Europe/Moscow
+
 #  ewm-service:
 #    ports:
 #      - "8080:8080"

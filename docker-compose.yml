@@ -13,7 +13,8 @@ services:
       #- TZ=Europe/Moscow
 
   stats-server:
-    build: stats-server
+    build:
+      context: ./stats/stats-server
     image: stats-server-image
     container_name: stats-server
     ports:

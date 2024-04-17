@@ -10,7 +10,6 @@ services:
       - POSTGRES_DB=ewm-stats
       - POSTGRES_USER=user1
       - POSTGRES_PASSWORD=iamroot
-      #- TZ=Europe/Moscow
 
   stats-server:
     build:
@@ -26,7 +25,6 @@ services:
       - SPRING_DRIVER_CLASS_NAME:org.postgresql.Driver
       - SPRING_DATASOURCE_USERNAME:user1
       - SPRING_DATASOURCE_PASSWORD:iamroot
-      #- TZ=Europe/Moscow
 
   ewm-main-db:
     image: postgres:14-alpine
@@ -37,11 +35,10 @@ services:
       - POSTGRES_DB=ewm-main
       - POSTGRES_USER=user1
       - POSTGRES_PASSWORD=iamroot
-      #- TZ=Europe/Moscow
 
-  main-service:
-    build: main-service
-    image: main-service-image
+  ewm-service:
+    build: ewm-service
+    image: ewm-service-image
     container_name: ewm-service
     ports:
       - "8080:8080"
@@ -52,11 +49,3 @@ services:
       - SPRING_DRIVER_CLASS_NAME:org.postgresql.Driver
       - SPRING_DATASOURCE_USERNAME:user1
       - SPRING_DATASOURCE_PASSWORD:iamroot
-      #- TZ=Europe/Moscow
-
-#  ewm-service:
-#    ports:
-#      - "8080:8080"
-
-#  ewm-db:
-#    image: postgres:14-alpine

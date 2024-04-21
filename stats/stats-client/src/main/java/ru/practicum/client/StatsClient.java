@@ -22,17 +22,16 @@ public class StatsClient {
 
     public ResponseEntity<Object> getStats(String start, String end,
                                            List<String> uris, Boolean unique) {
-        String urisAsParam = "";
-        String uniqueAsParam = "";
-        if (uris != null) {
-            urisAsParam = "&uris=" + uris.stream()
+        String requestUrl = "/stats?start={start}&end={end}";
+        if (uris != null && !uris.isEmpty()) {
+            String urisAsParam = "&uris=" + uris.stream()
                     .map(Object::toString)
                     .collect(Collectors.joining(","));
+            requestUrl = requestUrl + urisAsParam;
         }
         if (unique) {
-            uniqueAsParam = "&unique=true";
+            requestUrl = requestUrl + "&unique=true";
         }
-        return restTemplate.getForEntity("/stats?start={start}&end={end}"
-                + urisAsParam + uniqueAsParam, Object.class);
+        return restTemplate.getForEntity(requestUrl, Object.class);
     }
 }

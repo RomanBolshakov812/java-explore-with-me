@@ -3,8 +3,6 @@ package ru.practicum.service;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import ru.practicum.EndpointHit;
@@ -31,16 +29,9 @@ public class StatsServiceImpl implements StatsService {
     }
 
     @Override
-    public List<ViewStats> getStats(StatsFilter filter, Boolean unique,
-                                    Integer from, Integer size) {
-        Pageable page = statsToPage(from, size);
+    public List<ViewStats> getStats(StatsFilter filter, Boolean unique) {
         Specification<Hit> specification = hitSpecification.build(filter);
-        List<Hit> hitList = hitRepository.findAll(specification, page).toList();
+        List<Hit> hitList = hitRepository.findAll(specification);
         return HitMapper.toViewStatsList(hitList, unique);
-    }
-
-    private  Pageable statsToPage(Integer from, Integer size) {
-        int startPage = from / size;
-        return PageRequest.of(startPage, size);
     }
 }

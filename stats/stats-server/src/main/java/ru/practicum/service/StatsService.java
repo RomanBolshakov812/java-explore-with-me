@@ -9,5 +9,5 @@ public interface StatsService {
 
     void addHit(EndpointHit endpointHit);
 
-    List<ViewStats> getStats(StatsFilter filter, Boolean unique, Integer from, Integer size);
+    List<ViewStats> getStats(StatsFilter filter, Boolean unique);
 }

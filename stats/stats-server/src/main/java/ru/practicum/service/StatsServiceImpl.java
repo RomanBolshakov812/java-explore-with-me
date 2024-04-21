@@ -2,7 +2,6 @@ package ru.practicum.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import ru.practicum.EndpointHit;
@@ -17,9 +16,7 @@ import ru.practicum.specification.StatsFilter;
 @RequiredArgsConstructor
 public class StatsServiceImpl implements StatsService {
 
-    @Autowired
     private final HitRepository hitRepository;
-    @Autowired
     private final HitSpecification hitSpecification;
 
     @Override

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class StatsFilter {
-    private LocalDateTime start;
-    private LocalDateTime end;
+    private String start;
+    private String end;
     private List<String> uris;
 }

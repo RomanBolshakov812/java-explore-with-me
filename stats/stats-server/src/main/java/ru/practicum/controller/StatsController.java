@@ -21,8 +21,6 @@ import ru.practicum.specification.StatsFilter;
 public class StatsController {
 
     private final StatsService statsService;
-    private static  final DateTimeFormatter DATE_TIME_FORMATTER
-            = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @PostMapping(path = "/hit")
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -37,18 +35,9 @@ public class StatsController {
             @RequestParam(value = "uris", required = false) List<String> uris,
             @RequestParam(defaultValue = "false") Boolean unique) {
 
-        LocalDateTime startDateTime;
-        LocalDateTime endDateTime;
-        try {
-            startDateTime = LocalDateTime.parse(start, DATE_TIME_FORMATTER);
-            endDateTime = LocalDateTime.parse(end, DATE_TIME_FORMATTER);
-        } catch (DateTimeParseException exception) {
-            return ResponseEntity.badRequest().build();
-        }
-
         StatsFilter filter = new StatsFilter();
-        filter.setStart(startDateTime);
-        filter.setEnd(endDateTime);
+        filter.setStart(start);
+        filter.setEnd(end);
         filter.setUris(uris);
 
         List<ViewStats> viewStats = statsService.getStats(filter, unique);

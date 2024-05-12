@@ -30,6 +30,7 @@ public class AdminEventController {
 
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
+    // Поиск событий
     public ResponseEntity<List<EventFullDto>> searchEventsByAdmin(
             @RequestParam(value = "users", required = false) List<Long> users,
             @RequestParam(value = "states", required = false) List<State> states,
@@ -43,6 +44,7 @@ public class AdminEventController {
         filter.setUsers(users);
         filter.setStates(states);
         filter.setCategories(categories);
+        filter.setOnlyAvailable(false);
         filter.setRangeStart(rangeStart);
         filter.setRangeEnd(rangeEnd);
 
@@ -50,6 +52,7 @@ public class AdminEventController {
         return ResponseEntity.ok(events);
     }
 
+    // Редактирование данных события и его статуса (отклонение/публикация)
     @PatchMapping("/{eventId}")
     @ResponseStatus(code = HttpStatus.OK)
     public EventFullDto updateEventByAdmin(

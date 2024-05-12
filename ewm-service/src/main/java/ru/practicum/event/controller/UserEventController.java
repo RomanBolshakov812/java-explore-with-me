@@ -34,6 +34,7 @@ public class UserEventController {
         return eventService.addEvent(newEventDto, userId);
     }
 
+    // Получение событий, добавленных текущим пользователем
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
     public List<EventShortDto> getEventsByUser(
@@ -43,6 +44,7 @@ public class UserEventController {
         return eventService.getEventsByUser(userId, from, size);
     }
 
+    // Получение полной информации о событии, добавленном текущим пользователем
     @GetMapping("/{eventId}")
     @ResponseStatus(code = HttpStatus.OK)
     public EventFullDto getEventByUser(
@@ -51,6 +53,7 @@ public class UserEventController {
         return eventService.getEventByCurrentUser(userId, eventId);
     }
 
+    // Изменение события, добавленного текущим пользователем
     @PatchMapping("/{eventId}")
     @ResponseStatus(code = HttpStatus.OK)
     public EventFullDto updateEventByCurrentUser(

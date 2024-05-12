@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.request.dto.ParticipationRequestDto;
 import ru.practicum.user.dto.NewUserRequest;
 import ru.practicum.user.dto.UserDto;
@@ -16,10 +17,10 @@ import java.util.List;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path = "/users/{userId}/request")
+@RequestMapping(path = "/users/{userId}/requests")
 public class RequestController {
 
-    RequestService requestService;
+    private final RequestService requestService;
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
@@ -29,4 +30,16 @@ public class RequestController {
         return requestService.createRequest(userId, eventId);
     }
 
+    @PatchMapping("/{requestId}/cancel")
+    @ResponseStatus(code = HttpStatus.OK)
+    public ParticipationRequestDto cancelRequest(@PathVariable Long userId, @PathVariable Long requestId) {
+        return requestService.cancelRequest(userId, requestId);
+    }
+
+    @GetMapping
+    @ResponseStatus(code = HttpStatus.OK)
+    public List<ParticipationRequestDto> getRequestsByUser(
+            @PathVariable("userId") @NonNull Long userId) {
+        return requestService.getRequestsByUser(userId);
+    }
 }

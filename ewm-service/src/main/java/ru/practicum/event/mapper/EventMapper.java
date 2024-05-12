@@ -3,6 +3,7 @@ package ru.practicum.event.mapper;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import ru.practicum.category.mapper.CategoryMapper;
@@ -30,19 +31,19 @@ public class EventMapper {
                 event.getId(),
                 event.getAnnotation(),
                 CategoryMapper.toCategoryDto(event.getCategory()),
-                0L,////////////////////////////////////////////////////////////////////////
-                event.getCreated().toString(),
-                event.getDescription(),
+                event.getConfirmedRequests(),
                 event.getEventDate().format(DATE_TIME_FORMATTER),
                 UserMapper.toUserShortDto(event.getInitiator()),
-                location,
                 event.getPaid(),
+                event.getTitle(),
+                0L,
+                event.getCreated().toString(),
+                event.getDescription(),
+                location,
                 event.getParticipantLimit(),
                 publishedOn,
                 event.getRequestModeration(),
-                event.getState().name(),
-                event.getTitle(),
-                0L//////////////////////////////////////////////////////////////////////////////
+                event.getState().name()
         );
     }
 
@@ -66,6 +67,7 @@ public class EventMapper {
         } else {
             event.setParticipantLimit(newEventDto.getParticipantLimit());
         }
+        event.setConfirmedRequests(0);////////////////// СЧИТАЕТСЯ ЛИ АВТОР СОБЫТИЯ КАК УЧАСТНИК ??????????
         if (newEventDto.getRequestModeration() == null) {
             newEventDto.setRequestModeration(true);
         } else {
@@ -81,28 +83,34 @@ public class EventMapper {
                 event.getId(),
                 event.getAnnotation(),
                 CategoryMapper.toCategoryDto(event.getCategory()),
-                0L,////////////////////////////////////////////////////////////////////////
+                event.getConfirmedRequests(),////////////////////////////////////////////////////////////////////////
                 event.getEventDate().format(DATE_TIME_FORMATTER),
                 UserMapper.toUserShortDto(event.getInitiator()),
                 event.getPaid(),
                 event.getTitle(),
-                0L//////////////////////////////////////////////////////////////////////////////
+                0L
         );
     }
 
-    public static List<EventShortDto> toEventShortDtoList(List<Event> events) {
+    public static List<EventShortDto> toEventShortDtoList(List<Event> events,
+                                                          HashMap<Long, Long> views) {
         List<EventShortDto> list = new ArrayList<>();
         for (Event event : events) {
             EventShortDto eventShortDto = toEventShortDto(event);
+            eventShortDto.setViews(views.get(eventShortDto.getId()));
             list.add(eventShortDto);
         }
         return list;
     }
 
-    public static List<EventFullDto> toEventFulltDtoList(List<Event> events) {
+    // МОЖЕТ НАДО ОБЪЕДИНИТЬ ЭТИ ДВА МЕТОДА????(И ПОСМОТРЕТЬ ДРУГИЕ)????????????????????????????????????????????????????????
+
+    public static List<EventFullDto> toEventFulltDtoList(List<Event> events,
+                                                         HashMap<Long, Long> views) {
         List<EventFullDto> list = new ArrayList<>();
         for (Event event : events) {
             EventFullDto eventFullDto = toEventFullDto(event);
+            eventFullDto.setViews(views.get(eventFullDto.getId()));
             list.add(eventFullDto);
         }
         return list;

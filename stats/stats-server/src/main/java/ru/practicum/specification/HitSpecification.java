@@ -15,7 +15,7 @@ import ru.practicum.model.Hit;
 @Component
 public class HitSpecification {
     private static  final DateTimeFormatter DATE_TIME_FORMATTER
-            = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");/////////////////////////////////
 
     public Specification<Hit> build(StatsFilter filter) {
         List<Specification<Hit>> specifications = new ArrayList<>();

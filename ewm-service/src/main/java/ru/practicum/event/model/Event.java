@@ -52,6 +52,9 @@ public class Event {
     @Column(name = "participant_limit")
     private Integer participantLimit;
 
+    @Column(name = "confirmed_requests")
+    private Integer confirmedRequests;
+
     @Column(name = "published_on")
     private LocalDateTime publishedOn;
 

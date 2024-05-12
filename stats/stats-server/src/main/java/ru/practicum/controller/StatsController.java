@@ -29,7 +29,7 @@ public class StatsController {
     }
 
     @GetMapping(path = "/stats")
-    public ResponseEntity<List<ViewStats>> getStats(
+    public List<ViewStats> getStats(
             @RequestParam("start") @NonNull String start,
             @RequestParam("end") @NonNull String end,
             @RequestParam(value = "uris", required = false) List<String> uris,
@@ -40,8 +40,22 @@ public class StatsController {
         filter.setEnd(end);
         filter.setUris(uris);
 
-        List<ViewStats> viewStats = statsService.getStats(filter, unique);
-
-        return ResponseEntity.ok(viewStats);
+        return statsService.getStats(filter, unique);
     }
+//    @GetMapping(path = "/stats")
+//    public ResponseEntity<List<ViewStats>> getStats(
+//            @RequestParam("start") @NonNull String start,
+//            @RequestParam("end") @NonNull String end,
+//            @RequestParam(value = "uris", required = false) List<String> uris,
+//            @RequestParam(defaultValue = "false") Boolean unique) {
+//
+//        StatsFilter filter = new StatsFilter();
+//        filter.setStart(start);
+//        filter.setEnd(end);
+//        filter.setUris(uris);
+//
+//        List<ViewStats> viewStats = statsService.getStats(filter, unique);
+//
+//        return ResponseEntity.ok(viewStats);
+//    }
 }

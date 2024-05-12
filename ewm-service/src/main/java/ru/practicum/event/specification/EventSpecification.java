@@ -13,6 +13,12 @@ import ru.practicum.error.exception.IncorrectRequestParametersException;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.State;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import javax.validation.Path;
+
 @Component
 public class EventSpecification {
 
@@ -21,17 +27,32 @@ public class EventSpecification {
 
     public Specification<Event> build(EventFilter filter) {
         List<Specification<Event>> specifications = new ArrayList<>();
+        specifications.add(filter.getText() == null ? null : textIncludes(filter.getText()));
         specifications.add(filter.getUsers() == null ? null : userIn(filter.getUsers()));
         specifications.add(filter.getStates() == null ? null : stateIn(filter.getStates()));
-        specifications.add(filter.getCategories() == null ? null : categoryIn(filter.getCategories()));
+        specifications.add(filter.getCategories() == null
+                ? null : categoryIn(filter.getCategories()));
+        specifications.add(filter.getPaid() == null ? null : byPaid(filter.getPaid()));
         specifications.add(timestampBetween(filter.getRangeStart(), filter.getRangeEnd()));
+        if (filter.getOnlyAvailable()) {
+            specifications.add(onlyAvailable());
+        }
 
-        specifications = specifications.stream().filter(Objects::nonNull).collect(Collectors.toList());
+        specifications = specifications.stream().filter(Objects::nonNull)
+                .collect(Collectors.toList());
         return specifications.stream().reduce(Specification::and).orElse(null);
     }
 
-    private Specification<Event> userIn(List<Long> users) {
+    private Specification<Event> textIncludes(String text) {
+        return (root, query, cb) -> {
+            Predicate inAnnotation = cb.like(cb.upper(root.get("annotation")), text.toUpperCase());
+            Predicate inDescription = cb.like(cb.upper(root.get("description")),
+                    text.toUpperCase());
+            return cb.or(inAnnotation, inDescription);
+        };
+    }
 
+    private Specification<Event> userIn(List<Long> users) {
         return (root, query, cb) -> cb.in((root.get("initiator")).get("id")).value(users);
     }
 
@@ -41,6 +62,10 @@ public class EventSpecification {
 
     private Specification<Event> categoryIn(List<Long> categories) {
         return (root, query, cb) -> cb.in(root.get("category").get("id")).value(categories);
+    }
+
+    private Specification<Event> byPaid(Boolean paid) {
+        return (root, query, cb) -> cb.in(root.get("paid")).value(paid);
     }
 
     private Specification<Event> timestampBetween(String rangeStart, String rangeEnd) {
@@ -66,5 +91,14 @@ public class EventSpecification {
             return (root, query, cb) -> cb.greaterThan(root.get("eventDate"), start);
         }
         else return null;
+    }
+
+    private Specification<Event> onlyAvailable() {
+        return (root, query, cb) -> {
+            Predicate unlimited = cb.equal(root.get("participationLimit"), 0);
+            Predicate lessThan = cb.lessThan(root.get("confirmedRequests"),
+                    root.get("participationLimit"));
+            return cb.or(unlimited, lessThan);
+        };
     }
 }

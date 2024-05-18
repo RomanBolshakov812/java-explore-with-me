@@ -5,23 +5,20 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.event.dto.*;
+import ru.practicum.event.model.Event;
+import ru.practicum.event.model.Location;
 import ru.practicum.event.model.State;
 import ru.practicum.user.mapper.UserMapper;
 import ru.practicum.user.model.User;
-import ru.practicum.event.model.Event;
-import ru.practicum.event.model.Location;
-
-import static org.aspectj.asm.internal.CharOperation.indexOf;
 
 public class EventMapper {
     private static  final DateTimeFormatter DATE_TIME_FORMATTER
             = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static EventFullDto toEventFullDto(Event event) {////////////////////////////////////////////////////// УБРАТЬ ОТСЮДА КАТЕГОРИЮ!!!!!!!!!!!!!????????????????????????
+    public static EventFullDto toEventFullDto(Event event) {
         Location location = new Location(event.getLat(), event.getLon());
         String publishedOn = "";
         if (event.getPublishedOn() != null) {
@@ -54,35 +51,14 @@ public class EventMapper {
                event.getRequestModeration(),
                event.getState().name()
        );
-//        return new EventFullDto(
-//                event.getId(),
-//                event.getAnnotation(),
-//                CategoryMapper.toCategoryDto(event.getCategory()),
-//                event.getConfirmedRequests(),
-//                event.getEventDate().format(DATE_TIME_FORMATTER),
-//                UserMapper.toUserShortDto(event.getInitiator()),
-//                event.getPaid(),
-//                event.getTitle(),
-//                0L,
-//                event.getCreated().toString(),
-//                event.getDescription(),
-//                location,
-//                event.getParticipantLimit(),
-//                publishedOn,
-//                event.getRequestModeration(),
-//                event.getState().name()
-//        );
-
     }
 
     public static Event toEvent(NewEventDto newEventDto, Category category, User initiator) {
         LocalDateTime eventDate
                 = LocalDateTime.parse(newEventDto.getEventDate(), DATE_TIME_FORMATTER);
-
         Event event = new Event();
-        //event.setId(newEventDto.getId());/////////////////////////////////////////////////
         event.setAnnotation(newEventDto.getAnnotation());
-        event.setCategory(category);/////////////////////////////////////////////////////////////////
+        event.setCategory(category);
         event.setCreated(LocalDateTime.now());
         event.setDescription(newEventDto.getDescription());
         event.setEventDate(eventDate);
@@ -95,7 +71,7 @@ public class EventMapper {
         } else {
             event.setParticipantLimit(newEventDto.getParticipantLimit());
         }
-        event.setConfirmedRequests(0);////////////////// СЧИТАЕТСЯ ЛИ АВТОР СОБЫТИЯ КАК УЧАСТНИК ??????????
+        event.setConfirmedRequests(0);
         if (newEventDto.getRequestModeration() == null) {
             newEventDto.setRequestModeration(true);
         } else {
@@ -111,7 +87,7 @@ public class EventMapper {
                 event.getId(),
                 event.getAnnotation(),
                 CategoryMapper.toCategoryDto(event.getCategory()),
-                event.getConfirmedRequests(),////////////////////////////////////////////////////////////////////////
+                event.getConfirmedRequests(),
                 event.getEventDate().format(DATE_TIME_FORMATTER),
                 UserMapper.toUserShortDto(event.getInitiator()),
                 event.getPaid(),
@@ -130,8 +106,6 @@ public class EventMapper {
         }
         return list;
     }
-
-    // МОЖЕТ НАДО ОБЪЕДИНИТЬ ЭТИ ДВА МЕТОДА????(И ПОСМОТРЕТЬ ДРУГИЕ)????????????????????????????????????????????????????????
 
     public static List<EventFullDto> toEventFulltDtoList(List<Event> events,
                                                          HashMap<Long, Long> views) {

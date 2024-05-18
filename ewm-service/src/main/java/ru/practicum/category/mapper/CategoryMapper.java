@@ -1,12 +1,9 @@
 package ru.practicum.category.mapper;
 
-import ru.practicum.category.dto.CategoryDto;
-import ru.practicum.category.model.Category;
-import ru.practicum.event.dto.EventShortDto;
-import ru.practicum.event.model.Event;
-
 import java.util.ArrayList;
 import java.util.List;
+import ru.practicum.category.dto.CategoryDto;
+import ru.practicum.category.model.Category;
 
 public class CategoryMapper {
 
@@ -16,11 +13,9 @@ public class CategoryMapper {
         category.setName(categoryDto.getName());
         return category;
     }
+
     public static CategoryDto toCategoryDto(Category category) {
-        return new CategoryDto(
-                category.getId(),
-                category.getName()
-        );
+        return new CategoryDto(category.getId(), category.getName());
     }
 
     public static List<CategoryDto> toCategoryDtoList(List<Category> categories) {

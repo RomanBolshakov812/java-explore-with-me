@@ -1,25 +1,21 @@
 package ru.practicum.compilation;
 
+import java.util.*;
+import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.compilation.dto.CompilationDto;
 import ru.practicum.compilation.dto.NewCompilationDto;
 import ru.practicum.compilation.dto.UpdateCompilationRequest;
 import ru.practicum.compilation.mapper.CompilationMapper;
 import ru.practicum.compilation.model.Compilation;
-import ru.practicum.error.exception.DependentEntitiesException;
 import ru.practicum.event.EventRepository;
 import ru.practicum.event.EventServiceImpl;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
 import ru.practicum.util.PageMaker;
-
-import javax.persistence.EntityNotFoundException;
-import java.util.*;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +37,7 @@ public class CompilationServiceImpl implements CompilationService {
         if (newCompilationDto.getPinned() == null) {
             newCompilationDto.setPinned(false);
         }
-        Compilation compilation = CompilationMapper.toCompilation(newCompilationDto,events);
+        Compilation compilation = CompilationMapper.toCompilation(newCompilationDto, events);
         compilationRepository.save(compilation);
         return CompilationMapper
                 .toCompilationDto(compilation, eventShortDtoList);
@@ -84,7 +80,7 @@ public class CompilationServiceImpl implements CompilationService {
     public List<CompilationDto> getCompilations(Boolean pinned, Integer from, Integer size) {
         Pageable page = PageMaker.toPage(from, size);
         List<CompilationDto> compilationDtoList = new ArrayList<>();
-        List<Compilation> compilations = new ArrayList<>();///////////////////////////////////////////////////
+        List<Compilation> compilations;
         if (pinned == null) {
             compilations = compilationRepository.findAll(page).toList();
         } else {

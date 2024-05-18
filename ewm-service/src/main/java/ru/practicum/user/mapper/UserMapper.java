@@ -1,12 +1,11 @@
 package ru.practicum.user.mapper;
 
+import java.util.ArrayList;
+import java.util.List;
 import ru.practicum.user.dto.NewUserRequest;
 import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.dto.UserShortDto;
 import ru.practicum.user.model.User;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class UserMapper {
     public static UserDto toUserDto(User user) {

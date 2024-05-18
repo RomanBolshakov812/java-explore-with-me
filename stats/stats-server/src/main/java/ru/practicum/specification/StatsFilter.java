@@ -1,11 +1,8 @@
 package ru.practicum.specification;
 
-import java.time.LocalDateTime;
 import java.util.List;
-
 import lombok.*;
 
-//@Data/////////////////////////////////////////////////////////////////////////////////
 @Getter
 @Setter
 @AllArgsConstructor

@@ -7,17 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 import ru.practicum.error.exception.IncorrectRequestParametersException;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.State;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.validation.Path;
 
 @Component
 public class EventSpecification {
@@ -37,7 +32,6 @@ public class EventSpecification {
         if (filter.getOnlyAvailable()) {
             specifications.add(onlyAvailable());
         }
-
         specifications = specifications.stream().filter(Objects::nonNull)
                 .collect(Collectors.toList());
         return specifications.stream().reduce(Specification::and).orElse(null);
@@ -75,10 +69,14 @@ public class EventSpecification {
         try {
             if (rangeStart != null) {
                 start = LocalDateTime.parse(rangeStart, DATE_TIME_FORMATTER);
-            } else start = null;
+            } else {
+                start = null;
+            }
             if (rangeEnd != null) {
                 end = LocalDateTime.parse(rangeEnd, DATE_TIME_FORMATTER);
-            } else end = null;
+            } else {
+                end = null;
+            }
         } catch (DateTimeParseException exception) {
             throw new IncorrectRequestParametersException("Incorrect date value!");
         }
@@ -89,8 +87,9 @@ public class EventSpecification {
             return (root, query, cb) -> cb.lessThan(root.get("eventDate"), end);
         } else if (start != null) {
             return (root, query, cb) -> cb.greaterThan(root.get("eventDate"), start);
+        } else {
+            return null;
         }
-        else return null;
     }
 
     private Specification<Event> onlyAvailable() {

@@ -9,9 +9,9 @@ import ru.practicum.request.model.Request;
 @Repository
 public interface RequestRepository extends JpaRepository<Request, Long> {
     boolean existsRequestByRequesterIdAndEventId(Long requester, Long event);
+
     List<Request> findAllByRequesterId(Long requesterId);
 
-    // Я не понял зачем нам нужен id текущего юзера. Чтобы проверить, что это его event?
     @Query(nativeQuery = true, value = "select * from requests r where r.event = "
             + "(select e.id from events e where e.initiator_id = ?1 and e.id = ?2)")
     List<Request> findAllByInitiatorEventId(Long initiatorId, Long eventId);

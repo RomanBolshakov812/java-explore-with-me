@@ -1,5 +1,11 @@
 package ru.practicum.event.controller;
 
+import java.util.List;
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,13 +16,6 @@ import ru.practicum.event.EventService;
 import ru.practicum.event.dto.*;
 import ru.practicum.request.RequestService;
 import ru.practicum.request.dto.ParticipationRequestDto;
-
-import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
-import java.util.List;
 
 @Validated
 @RestController
@@ -58,7 +57,7 @@ public class UserEventController {
     @PatchMapping("/{eventId}")
     @ResponseStatus(code = HttpStatus.OK)
     public EventFullDto updateEventByCurrentUser(
-            @RequestBody @Valid UpdateEventUserRequest updateEventUserRequest,/////////////////////////////////////////////////
+            @RequestBody @Valid UpdateEventUserRequest updateEventUserRequest,
             @PathVariable("userId") @NonNull Long userId,
             @PathVariable("eventId") @NonNull Long eventId) {
         return eventService.updateEventByCurrentUser(updateEventUserRequest, userId, eventId);

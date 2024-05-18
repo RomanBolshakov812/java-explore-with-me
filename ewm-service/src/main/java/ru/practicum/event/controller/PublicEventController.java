@@ -1,5 +1,13 @@
 package ru.practicum.event.controller;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.PositiveOrZero;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,22 +21,13 @@ import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.model.State;
 import ru.practicum.event.specification.EventFilter;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.PositiveOrZero;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-
 @Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/events", produces = MediaType.APPLICATION_JSON_VALUE)
 public class PublicEventController {
     private final EventService eventService;
-    private static  final DateTimeFormatter DATE_TIME_FORMATTER///////////////////////////////////////////////////
+    private static  final DateTimeFormatter DATE_TIME_FORMATTER
             = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     // Получение событий с возможностью фильтрации
@@ -37,19 +36,17 @@ public class PublicEventController {
     public ResponseEntity<List<EventShortDto>> getEventsByFilter(
             @RequestParam(value = "text", required = false) String text,
             @RequestParam(value = "categories", required = false) List<Long> categories,
-            @RequestParam(value = "paid", required = false) Boolean paid,///////////////////////////////// Было Boolean !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            @RequestParam(value = "paid", required = false) Boolean paid,
             @RequestParam(value = "rangeStart", required = false) String rangeStart,
             @RequestParam(value = "rangeEnd", required = false) String rangeEnd,
-            @RequestParam(value = "onlyAvailable", defaultValue = "false") Boolean onlyAvailable,///////////////////////////////// Было Boolean !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            @RequestParam(value = "sort", defaultValue = "EVENT_DATE") String sort,//EVENT_DATE, VIEWS////////////////////////////
+            @RequestParam(value = "onlyAvailable", defaultValue = "false") Boolean onlyAvailable,
+            @RequestParam(value = "sort", defaultValue = "EVENT_DATE") String sort,
             @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(value = "size", defaultValue = "10") @Min(1) @Max(1000) Integer size,
             HttpServletRequest request) {
-
         if (rangeStart == null || rangeEnd == null) {
             rangeStart = LocalDateTime.now().format(DATE_TIME_FORMATTER);
             rangeEnd = "9999-12-31 23:59:59";
-//            rangeEnd = LocalDateTime.MAX.format(DATE_TIME_FORMATTER);
         }
 
         EventFilter filter = new EventFilter();
@@ -75,12 +72,4 @@ public class PublicEventController {
             HttpServletRequest request) {
         return eventService.getEventById(id, request);
     }
-
-//    @PatchMapping("/{eventId}")
-//    @ResponseStatus(code = HttpStatus.OK)
-//    public EventFullDto updateEventByAdmin(
-//            @RequestBody UpdateEventAdminRequest updateEventAdminRequest,
-//            @PathVariable("eventId") @NonNull Long eventId) {
-//        return eventService.updateEventByAdmin(updateEventAdminRequest, eventId);
-//    }
 }

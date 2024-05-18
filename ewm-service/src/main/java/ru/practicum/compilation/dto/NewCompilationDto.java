@@ -1,13 +1,11 @@
 package ru.practicum.compilation.dto;
 
+import java.util.List;
+import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.boot.context.properties.bind.DefaultValue;
-
-import javax.validation.constraints.NotBlank;
-import java.util.List;
 
 @Getter
 @Setter

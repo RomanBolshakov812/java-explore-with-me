@@ -1,18 +1,13 @@
 package ru.practicum.request;
 
+import java.util.List;
+import javax.validation.constraints.Positive;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.request.dto.ParticipationRequestDto;
-import ru.practicum.user.dto.NewUserRequest;
-import ru.practicum.user.dto.UserDto;
-
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Positive;
-import java.util.List;
 
 @Validated
 @RestController
@@ -34,10 +29,11 @@ public class RequestController {
     // Отмена своего запроса на участие в событии
     @PatchMapping("/{requestId}/cancel")
     @ResponseStatus(code = HttpStatus.OK)
-    public ParticipationRequestDto cancelRequest(@PathVariable Long userId, @PathVariable Long requestId) {
+    public ParticipationRequestDto cancelRequest(
+            @PathVariable Long userId,
+            @PathVariable Long requestId) {
         return requestService.cancelRequest(userId, requestId);
     }
-
 
     // Получение информации о заявках текущего пользователя на участие в чужих событиях
     @GetMapping

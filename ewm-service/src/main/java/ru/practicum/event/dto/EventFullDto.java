@@ -2,8 +2,8 @@ package ru.practicum.event.dto;
 
 import lombok.*;
 import ru.practicum.category.dto.CategoryDto;
-import ru.practicum.user.dto.UserShortDto;
 import ru.practicum.event.model.Location;
+import ru.practicum.user.dto.UserShortDto;
 
 @Getter
 @Setter
@@ -23,7 +23,8 @@ public class EventFullDto extends EventShortDto {
                         Long views, String createdOn, String description, Location location,
                         Integer participantLimit, String publishedOn, boolean requestModeration,
                         String state) {
-        super(id, annotation, category, confirmedRequests, eventDate, initiator, paid, title, views);
+        super(id, annotation, category, confirmedRequests, eventDate,
+                initiator, paid, title, views);
         this.createdOn = createdOn;
         this.description = description;
         this.location = location;

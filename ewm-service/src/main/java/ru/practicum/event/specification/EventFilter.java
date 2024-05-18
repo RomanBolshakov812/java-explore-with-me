@@ -1,15 +1,9 @@
 package ru.practicum.event.specification;
 
+import java.util.List;
 import lombok.*;
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.event.model.State;
 
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import java.time.LocalDateTime;
-import java.util.List;
-
-//@Data/////////////////////////////////////////////////////////////////////////
 @Getter
 @Setter
 @AllArgsConstructor

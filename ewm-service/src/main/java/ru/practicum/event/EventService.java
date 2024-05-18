@@ -1,10 +1,9 @@
 package ru.practicum.event;
 
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import ru.practicum.event.dto.*;
 import ru.practicum.event.specification.EventFilter;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 public interface EventService {
     EventFullDto addEvent(NewEventDto newEventDto, Long userId);

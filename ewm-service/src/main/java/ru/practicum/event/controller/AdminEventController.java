@@ -1,5 +1,11 @@
 package ru.practicum.event.controller;
 
+import java.util.List;
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,22 +18,12 @@ import ru.practicum.event.dto.*;
 import ru.practicum.event.model.State;
 import ru.practicum.event.specification.EventFilter;
 
-import javax.validation.Valid;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
 @Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/admin/events", produces = MediaType.APPLICATION_JSON_VALUE)
 public class AdminEventController {
     private final EventService eventService;
-    private static  final DateTimeFormatter DATE_TIME_FORMATTER///////////////////////////////////////////////////
-            = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
@@ -40,7 +36,6 @@ public class AdminEventController {
             @RequestParam(value = "rangeEnd", required = false) String rangeEnd,
             @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(value = "size", defaultValue = "10") @Min(1) @Max(1000) Integer size) {
-
         EventFilter filter = new EventFilter();
         filter.setUsers(users);
         filter.setStates(states);

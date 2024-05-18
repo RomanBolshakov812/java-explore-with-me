@@ -1,5 +1,10 @@
 package ru.practicum.request;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.EntityNotFoundException;
+import javax.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.error.exception.IncorrectRequestParametersException;
@@ -12,24 +17,12 @@ import ru.practicum.event.model.Status;
 import ru.practicum.request.dto.ParticipationRequestDto;
 import ru.practicum.request.mapper.RequestMapper;
 import ru.practicum.request.model.Request;
-import ru.practicum.user.UserRepository;
-
-import javax.persistence.EntityNotFoundException;
-import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService {
     private final EventRepository eventRepository;
-    private final UserRepository userRepository;/////////////////////////////////////////////////
     private final RequestRepository requestRepository;
-    private static  final DateTimeFormatter DATE_TIME_FORMATTER///////////////////////////////////////
-            = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public ParticipationRequestDto createRequest(Long userId, Long eventId) {
@@ -56,18 +49,12 @@ public class RequestServiceImpl implements RequestService {
                 throw new IncorrectRequestParametersException("Number of participants exceeded!");
             }
         }
-
-        /////////////////////////////////////////////////////////////////////////////////////////
-        // Если есть модерация запроса - request PENDING (сейчас сделано наоборот,///////////////////////////////////////////////////////////
-        // т.к. в postman почему-то требуется наоборот).
-        if (event.getRequestModeration() & event.getParticipantLimit() != 0) {/////////////////////////////////  !!!!!!!!!!!!!!!!!!!!!
+        if (event.getRequestModeration() & event.getParticipantLimit() != 0) {
             request.setStatus(Status.PENDING.name());
         } else {
             request.setStatus(Status.CONFIRMED.name());
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
         }
-        /////////////////////////////////////////////////////////////////////////////////////////////
-
         eventRepository.save(event);
         request.setEventId(eventId);
         request.setRequesterId(userId);
@@ -121,9 +108,8 @@ public class RequestServiceImpl implements RequestService {
             Long eventId) {
         Event event = eventRepository.findById(eventId).orElseThrow(() ->
                 new EntityNotFoundException("Event with id=" + eventId + " was not found"));
-
-        int availableLimitOfParticipants = 0;// Остаток свободных мест
-        boolean participantsLimit = event.getParticipantLimit() > 0;// Есть лимит участников
+        int availableLimitOfParticipants = 0; // Остаток свободных мест
+        boolean participantsLimit = event.getParticipantLimit() > 0; // Есть лимит участников
         if (participantsLimit) {
             availableLimitOfParticipants =
                     event.getParticipantLimit() - event.getConfirmedRequests();
@@ -174,7 +160,7 @@ public class RequestServiceImpl implements RequestService {
                     = RequestMapper.toParticipationRequestDto(request);
             participationRequestDtoList.add(participationRequestDto);
         }
-        requestRepository.saveAll(requests);// ?????????????????????????????????????????????????????????????????
+        requestRepository.saveAll(requests);
         return participationRequestDtoList;
     }
 }

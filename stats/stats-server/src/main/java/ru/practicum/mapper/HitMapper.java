@@ -31,16 +31,7 @@ public class HitMapper {
         );
     }
 
-    public static List<EndpointHit> toHitDtoList(List<Hit> hits) {///////////////////////////////////////////////////////////////////
-        List<EndpointHit> result = new ArrayList<>();
-        for (Hit hit : hits) {
-            result.add(toHitDto(hit));
-        }
-        return result;
-    }
-
     public static List<ViewStats> toViewStatsList(List<Hit> hitList, Boolean unique) {
-
         List<ViewStats> viewStatsList = new ArrayList<>();
         Map<String, Long> urisAndHitsMap = new HashMap<>();
 
@@ -55,7 +46,6 @@ public class HitMapper {
             urisAndHitsMap = hitList.stream()
                     .collect(Collectors.groupingBy(Hit::getUri, Collectors.counting()));
         }
-
         for (String uri : urisAndHitsMap.keySet()) {
             ViewStats viewStats = new ViewStats();
             viewStats.setApp("ewm-main-service");
@@ -63,7 +53,6 @@ public class HitMapper {
             viewStats.setHits(urisAndHitsMap.get(uri));
             viewStatsList.add(viewStats);
         }
-
         viewStatsList.sort(Comparator.comparingLong(ViewStats::getHits).reversed());
         return viewStatsList;
     }

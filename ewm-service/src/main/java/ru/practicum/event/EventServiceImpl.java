@@ -1,42 +1,37 @@
 package ru.practicum.event;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
-import ru.practicum.EndpointHit;///////////////////////////////////////////////////
+import ru.practicum.EndpointHit;
 import ru.practicum.ViewStats;
 import ru.practicum.category.CategoryRepository;
 import ru.practicum.category.model.Category;
-import ru.practicum.client.StatsClient;///////////////////////////////////////////////////
+import ru.practicum.client.StatsClient;
 import ru.practicum.event.dto.*;
 import ru.practicum.event.model.State;
-import ru.practicum.event.model.StateAction;
+import ru.practicum.error.exception.IncorrectRequestParametersException;
+import ru.practicum.event.mapper.EventMapper;
+import ru.practicum.event.model.Event
+import ru.practicum.event.model.StateAction;;
 import ru.practicum.event.specification.EventFilter;
 import ru.practicum.event.specification.EventSpecification;
 import ru.practicum.user.UserRepository;
 import ru.practicum.user.model.User;
-import ru.practicum.error.exception.IncorrectRequestParametersException;
-import ru.practicum.error.exception.IncorrectEntityParametersException;
-import ru.practicum.event.mapper.EventMapper;
-import ru.practicum.event.model.Event;
 import ru.practicum.util.PageMaker;
-
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +42,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private static  final DateTimeFormatter DATE_TIME_FORMATTER
-            = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");////////////////////////////////
+            = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final EventSpecification eventSpecification;
 
     @Override
@@ -91,7 +86,7 @@ public class EventServiceImpl implements EventService {
     // Изменение события, добавленного текущим пользователем
     @Override
     public EventFullDto updateEventByCurrentUser(
-            UpdateEventUserRequest updateEventUserRequest,//////////////////////////////////////////////////////////////////
+            UpdateEventUserRequest updateEventUserRequest,
             Long userId,
             Long eventId) {
         isValid(updateEventUserRequest);
@@ -111,16 +106,12 @@ public class EventServiceImpl implements EventService {
         }
         if (updateEventUserRequest.getStateAction() != null) {
             if (updateEventUserRequest.getStateAction().equals(StateAction.CANCEL_REVIEW.name())) {
-                currentEvent.setState(State.CANCELED);/////////////////////// НЕ ПОНЯТНО ПОЧЕМУ CANCELLED (так требуется в тесте) а не PENDING...
+                currentEvent.setState(State.CANCELED);
             } else {
                 currentEvent.setState(State.PENDING);
             }
         }
-
-//        Event updatedEvent = EventMapper
-//                .toEventFromUpdateEventDto(currentEvent, updateEventUserRequest, newCategory);
-//        return EventMapper.toEventFullDto(updatedEvent);
-        return generalUpdateEvent(currentEvent, updateEventUserRequest, false);////////////////////////// УБРАТЬ ЭТОТ false !!!!!!!!!!!!!!!!!!!!!!!!!
+        return generalUpdateEvent(currentEvent, updateEventUserRequest);
     }
 
     // Редактирование данных события и его статуса (отклонение/публикация)
@@ -143,33 +134,30 @@ public class EventServiceImpl implements EventService {
             LocalDateTime eventDate = currentEvent.getEventDate();
             isValidTimestamp(eventDate, 1);
         }
-        // Если событие отклоняется - проверка, что оно не PUBLISHED и присвоение REJECT_EVENT
+        // Если событие отклоняется - проверка, что оно не PUBLISHED
         // Если публикуется - присвоение PUBLISHED
-        EventFullDto eventFullDto = new EventFullDto();
-        boolean isAdmin = true;
+        EventFullDto eventFullDto;
         if (updateEventAdminRequest.getStateAction() != null) {
             if (updateEventAdminRequest.getStateAction().equals(StateAction.REJECT_EVENT.name())) {
                 if (currentEvent.getState().equals(State.PUBLISHED)) {
                     throw new ValidationException("Only pending and cancelled events "
                             + "can be changed");
                 } else {
-                    currentEvent.setState(State.CANCELED);//////////????????????????????????????????////////////////////////////////////////////
-                    eventFullDto = generalUpdateEvent(currentEvent, updateEventAdminRequest,
-                            isAdmin);
-                    //eventFullDto.setState(State.PENDING.name());///////////////////////////////////////////////////////
+                    currentEvent.setState(State.CANCELED);
+                    eventFullDto = generalUpdateEvent(currentEvent, updateEventAdminRequest);
                 }
             } else {
                 currentEvent.setState(State.PUBLISHED);
                 currentEvent.setPublishedOn(LocalDateTime.now());
-                eventFullDto = generalUpdateEvent(currentEvent, updateEventAdminRequest, isAdmin);
+                eventFullDto = generalUpdateEvent(currentEvent, updateEventAdminRequest);
             }
         } else {
-            eventFullDto = generalUpdateEvent(currentEvent, updateEventAdminRequest, isAdmin);
+            eventFullDto = generalUpdateEvent(currentEvent, updateEventAdminRequest);
         }
         return eventFullDto;
     }
 
-    // Поиск событий0000000000000000000000000000000000000000000000000000000000000000000000000
+    // Поиск событий
     @Override
     public List<EventFullDto> searchEventsByAdmin(EventFilter filter, Integer from, Integer size) {
         Pageable page = PageMaker.toPage(from, size);
@@ -182,8 +170,12 @@ public class EventServiceImpl implements EventService {
 
     // Получение событий с возможностью фильтрации
     @Override
-    public List<EventShortDto> publicSearchEventsByFilter(EventFilter filter, HttpServletRequest request,
-                                                          String sortParam, Integer from, Integer size) {
+    public List<EventShortDto> publicSearchEventsByFilter(
+            EventFilter filter,
+            HttpServletRequest request,
+            String sortParam,
+            Integer from,
+            Integer size) {
         if (LocalDateTime.parse(filter.getRangeStart(), DATE_TIME_FORMATTER)
                 .isAfter(LocalDateTime.parse(filter.getRangeEnd(), DATE_TIME_FORMATTER))) {
             throw new ValidationException("Incorrect dates");
@@ -206,7 +198,7 @@ public class EventServiceImpl implements EventService {
     }
 
     //Получение подробной информации об опубликованном событии по его идентификатору
-    @Override // МЕТОД КРИВОЙ !!!!!!!!(есть старая версия в КУСКАХ)!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    @Override
     public EventFullDto getEventById(Long id, HttpServletRequest request) {
         // Видимо нужно было сразу сделать поиск ивента по id, у которого state был бы PUBLISHED,
         // но я так и не разобрался как работать с enum в запросе к базе
@@ -234,16 +226,13 @@ public class EventServiceImpl implements EventService {
 
     private void isValidTimestamp(LocalDateTime timestamp, Integer timeLag) {
         if (timestamp.isBefore(LocalDateTime.now().plusHours(timeLag))) {
-            throw new ValidationException(
-            //throw new IncorrectEntityParametersException(/////////////////////////////////////////////////////////////////
-                    "The date and time of the event must be no earlier than "
+            throw new ValidationException("The date and time of the event must be no earlier than "
                             + LocalDateTime.now().plusHours(timeLag));
         }
     }
 
     private EventFullDto generalUpdateEvent(Event currentEvent,
-                                            UpdateEventUserRequest updateEventDto,
-                                            boolean isAdmin) {
+                                            UpdateEventUserRequest updateEventDto) {
         Category newCategory;
         // Назначение новой категории при ее наличии в запросе и в базе
         if (updateEventDto.getCategory() != null && !currentEvent.getCategory()
@@ -277,13 +266,6 @@ public class EventServiceImpl implements EventService {
             currentEvent.setTitle(updateEventDto.getTitle());
         }
         eventRepository.save(currentEvent);
-//        if (isAdmin) {
-//            currentEvent.setState(State.CANCELED);////////////////////////////////////////////////////////
-//        }
-//        if (updateEventDto.getStateAction().equals("CANCEL_REVIEW")) {
-//            currentEvent.setState(State.CANCELED);////////////////////////////////////////////////////////
-//        }
-        //currentEvent.setState(State.CANCELED);////////////////////////////////////////////////////////
         return EventMapper.toEventFullDto(currentEvent);
     }
 
@@ -292,8 +274,7 @@ public class EventServiceImpl implements EventService {
             start = LocalDateTime.now().format(DATE_TIME_FORMATTER);
         }
         if (end == null) {
-            end = "9999-12-31 23:59:59";////////////////////////////////////////////////////////////
-//            end = LocalDateTime.MAX.format(DATE_TIME_FORMATTER);
+            end = "9999-12-31 23:59:59";
         }
         List<Long> idsList = new ArrayList<>();// Список айдишников
         for (Event event : events) {
@@ -325,9 +306,6 @@ public class EventServiceImpl implements EventService {
     }
 
     private void isValid(UpdateEventUserRequest updateEventUserRequest) {
-//        String title = updateEventUserRequest.getTitle();
-//        String annotation = updateEventUserRequest.getAnnotation();
-//        String description = updateEventUserRequest.getDescription();
         if (updateEventUserRequest.getTitle() != null) {
             if (updateEventUserRequest.getTitle().isBlank()) {
                 throw new ValidationException("Event title cannot be empty");
@@ -343,11 +321,5 @@ public class EventServiceImpl implements EventService {
                 throw new ValidationException("Event description cannot be empty");
             }
         }
-
-//        if (updateEventUserRequest.getParticipantLimit() != null) {
-//            if (updateEventUserRequest.getParticipantLimit() < 0) {
-//                throw new ValidationException("Passed a negative participant limit value");
-//            }
-//        }
     }
 }

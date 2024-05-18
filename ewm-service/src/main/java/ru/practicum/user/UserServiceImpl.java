@@ -1,17 +1,16 @@
 package ru.practicum.user;
 
 import java.util.List;
+import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.error.exception.IncorrectRequestParametersException;
 import ru.practicum.user.dto.NewUserRequest;
 import ru.practicum.user.dto.UserDto;
-import ru.practicum.user.model.User;
 import ru.practicum.user.mapper.UserMapper;
+import ru.practicum.user.model.User;
 import ru.practicum.util.PageMaker;
-
-import javax.persistence.EntityNotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +41,7 @@ public class UserServiceImpl implements UserService {
     public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
         Pageable page = PageMaker.toPage(from, size);
         List<User> users;
-        if(ids == null || ids.isEmpty()) {
+        if (ids == null || ids.isEmpty()) {
             users = userRepository.findAll(page).toList();
         } else {
             users = userRepository.findByIdIn(ids, page).toList();

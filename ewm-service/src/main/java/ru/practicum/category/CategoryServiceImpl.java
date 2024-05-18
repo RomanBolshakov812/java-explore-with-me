@@ -1,5 +1,8 @@
 package ru.practicum.category;
 
+import java.util.ArrayList;
+import java.util.List;
+import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -10,11 +13,6 @@ import ru.practicum.error.exception.DependentEntitiesException;
 import ru.practicum.error.exception.IncorrectRequestParametersException;
 import ru.practicum.event.EventRepository;
 import ru.practicum.util.PageMaker;
-
-import javax.persistence.EntityNotFoundException;
-import javax.validation.ConstraintViolationException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

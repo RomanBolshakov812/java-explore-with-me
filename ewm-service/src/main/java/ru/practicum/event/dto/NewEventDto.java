@@ -1,21 +1,18 @@
 package ru.practicum.event.dto;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import ru.practicum.event.model.Location;
-
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PositiveOrZero;
 
 @Getter
 @Setter
 @AllArgsConstructor
 public class NewEventDto {
-//    private Long id;////////////////////////////////////////////////////
     @NotNull
     @NotBlank
     @Length(min = 20, max = 2000)

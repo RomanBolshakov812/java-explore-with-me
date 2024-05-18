@@ -1,18 +1,15 @@
 package ru.practicum.compilation.controller;
 
+import javax.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.compilation.CompilationService;
 import ru.practicum.compilation.dto.CompilationDto;
 import ru.practicum.compilation.dto.NewCompilationDto;
 import ru.practicum.compilation.dto.UpdateCompilationRequest;
-
-import javax.validation.Valid;
-import java.util.List;
 
 @Validated
 @RestController

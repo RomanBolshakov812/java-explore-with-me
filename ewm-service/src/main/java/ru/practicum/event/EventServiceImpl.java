@@ -1,9 +1,14 @@
 package ru.practicum.event;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import javax.persistence.EntityNotFoundException;
+import javax.servlet.http.HttpServletRequest;
+import javax.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -16,22 +21,17 @@ import ru.practicum.ViewStats;
 import ru.practicum.category.CategoryRepository;
 import ru.practicum.category.model.Category;
 import ru.practicum.client.StatsClient;
-import ru.practicum.event.dto.*;
-import ru.practicum.event.model.State;
 import ru.practicum.error.exception.IncorrectRequestParametersException;
+import ru.practicum.event.dto.*;
 import ru.practicum.event.mapper.EventMapper;
-import ru.practicum.event.model.Event
-import ru.practicum.event.model.StateAction;;
+import ru.practicum.event.model.Event;
+import ru.practicum.event.model.State;
+import ru.practicum.event.model.StateAction;
 import ru.practicum.event.specification.EventFilter;
 import ru.practicum.event.specification.EventSpecification;
 import ru.practicum.user.UserRepository;
 import ru.practicum.user.model.User;
 import ru.practicum.util.PageMaker;
-import javax.persistence.EntityNotFoundException;
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.ValidationException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
@@ -276,11 +276,11 @@ public class EventServiceImpl implements EventService {
         if (end == null) {
             end = "9999-12-31 23:59:59";
         }
-        List<Long> idsList = new ArrayList<>();// Список айдишников
+        List<Long> idsList = new ArrayList<>(); // Список айдишников
         for (Event event : events) {
             idsList.add(event.getId());
         }
-        List<String> uris = new ArrayList<>();// Список урлов
+        List<String> uris = new ArrayList<>(); // Список урлов
         for (Long eventId : idsList) {
             uris.add("/events/" + eventId);
         }

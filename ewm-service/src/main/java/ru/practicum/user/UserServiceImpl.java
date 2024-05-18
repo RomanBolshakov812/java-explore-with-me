@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.practicum.error.exception.IncorrectRequestParametersException;
 import ru.practicum.user.dto.NewUserRequest;
 import ru.practicum.user.dto.UserDto;
 import ru.practicum.user.model.User;
@@ -20,8 +21,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto addUser(NewUserRequest newUserRequest) {
-        User user = UserMapper.toUser(newUserRequest);
-        userRepository.save(user);
+        User currentUser = UserMapper.toUser(newUserRequest);
+        User user;
+        try {
+            user = userRepository.save(currentUser);
+        } catch (RuntimeException e) {
+            throw new IncorrectRequestParametersException("This email is taken!");
+        }
         return UserMapper.toUserDto(user);
     }
 

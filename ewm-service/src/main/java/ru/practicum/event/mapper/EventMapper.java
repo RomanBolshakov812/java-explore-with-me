@@ -27,24 +27,52 @@ public class EventMapper {
         if (event.getPublishedOn() != null) {
             publishedOn = event.getPublishedOn().format(DATE_TIME_FORMATTER);
         }
+        if (event.getRequestModeration() == null) {
+            event.setRequestModeration(true);
+        }
+        if (event.getParticipantLimit() == null) {
+            event.setParticipantLimit(0);
+        }
+        if (event.getPaid() == null) {
+            event.setPaid(false);
+        }
         return new EventFullDto(
-                event.getId(),
-                event.getAnnotation(),
-                CategoryMapper.toCategoryDto(event.getCategory()),
-                event.getConfirmedRequests(),
-                event.getEventDate().format(DATE_TIME_FORMATTER),
-                UserMapper.toUserShortDto(event.getInitiator()),
-                event.getPaid(),
-                event.getTitle(),
-                0L,
-                event.getCreated().toString(),
-                event.getDescription(),
-                location,
-                event.getParticipantLimit(),
-                publishedOn,
-                event.getRequestModeration(),
-                event.getState().name()
-        );
+               event.getId(),
+               event.getAnnotation(),
+               CategoryMapper.toCategoryDto(event.getCategory()),
+               event.getConfirmedRequests(),
+               event.getEventDate().format(DATE_TIME_FORMATTER),
+               UserMapper.toUserShortDto(event.getInitiator()),
+               event.getPaid(),
+               event.getTitle(),
+               0L,
+               event.getCreated().toString(),
+               event.getDescription(),
+               location,
+               event.getParticipantLimit(),
+               publishedOn,
+               event.getRequestModeration(),
+               event.getState().name()
+       );
+//        return new EventFullDto(
+//                event.getId(),
+//                event.getAnnotation(),
+//                CategoryMapper.toCategoryDto(event.getCategory()),
+//                event.getConfirmedRequests(),
+//                event.getEventDate().format(DATE_TIME_FORMATTER),
+//                UserMapper.toUserShortDto(event.getInitiator()),
+//                event.getPaid(),
+//                event.getTitle(),
+//                0L,
+//                event.getCreated().toString(),
+//                event.getDescription(),
+//                location,
+//                event.getParticipantLimit(),
+//                publishedOn,
+//                event.getRequestModeration(),
+//                event.getState().name()
+//        );
+
     }
 
     public static Event toEvent(NewEventDto newEventDto, Category category, User initiator) {
@@ -52,7 +80,7 @@ public class EventMapper {
                 = LocalDateTime.parse(newEventDto.getEventDate(), DATE_TIME_FORMATTER);
 
         Event event = new Event();
-        event.setId(newEventDto.getId());
+        //event.setId(newEventDto.getId());/////////////////////////////////////////////////
         event.setAnnotation(newEventDto.getAnnotation());
         event.setCategory(category);/////////////////////////////////////////////////////////////////
         event.setCreated(LocalDateTime.now());

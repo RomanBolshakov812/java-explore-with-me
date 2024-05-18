@@ -18,7 +18,7 @@ public class HitMapper {
         hit.setApp(endpointHit.getApp());
         hit.setUri(endpointHit.getUri());
         hit.setIp(endpointHit.getIp());
-        hit.setTimestamp(LocalDateTime.parse(endpointHit.getTimestamp(), DATE_TIME_FORMATTER));
+        hit.setTs(LocalDateTime.parse(endpointHit.getTimestamp(), DATE_TIME_FORMATTER));
         return hit;
     }
 
@@ -27,11 +27,11 @@ public class HitMapper {
                 hit.getApp(),
                 hit.getUri(),
                 hit.getIp(),
-                hit.getTimestamp().toString()
+                hit.getTs().toString()
         );
     }
 
-    public static List<EndpointHit> toHitDtoList(List<Hit> hits) {
+    public static List<EndpointHit> toHitDtoList(List<Hit> hits) {///////////////////////////////////////////////////////////////////
         List<EndpointHit> result = new ArrayList<>();
         for (Hit hit : hits) {
             result.add(toHitDto(hit));

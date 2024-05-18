@@ -37,18 +37,19 @@ public class PublicEventController {
     public ResponseEntity<List<EventShortDto>> getEventsByFilter(
             @RequestParam(value = "text", required = false) String text,
             @RequestParam(value = "categories", required = false) List<Long> categories,
-            @RequestParam(value = "paid", required = false) Boolean paid,
+            @RequestParam(value = "paid", required = false) Boolean paid,///////////////////////////////// Было Boolean !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             @RequestParam(value = "rangeStart", required = false) String rangeStart,
             @RequestParam(value = "rangeEnd", required = false) String rangeEnd,
-            @RequestParam(value = "onlyAvailable", defaultValue = "false") Boolean onlyAvailable,
-            @RequestParam(value = "sort", required = false) String sort,//EVENT_DATE, VIEWS////////////////////////////
+            @RequestParam(value = "onlyAvailable", defaultValue = "false") Boolean onlyAvailable,///////////////////////////////// Было Boolean !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            @RequestParam(value = "sort", defaultValue = "EVENT_DATE") String sort,//EVENT_DATE, VIEWS////////////////////////////
             @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(value = "size", defaultValue = "10") @Min(1) @Max(1000) Integer size,
             HttpServletRequest request) {
 
         if (rangeStart == null || rangeEnd == null) {
             rangeStart = LocalDateTime.now().format(DATE_TIME_FORMATTER);
-            rangeEnd = LocalDateTime.MAX.format(DATE_TIME_FORMATTER);
+            rangeEnd = "9999-12-31 23:59:59";
+//            rangeEnd = LocalDateTime.MAX.format(DATE_TIME_FORMATTER);
         }
 
         EventFilter filter = new EventFilter();
@@ -60,11 +61,9 @@ public class PublicEventController {
         filter.setRangeEnd(rangeEnd);
         filter.setOnlyAvailable(onlyAvailable);
 
-        // Еще как-то надо обрабатывать VIEW !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        // И отправлять инфу о факте запроса в СТАТИСТИКУ !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
         List<EventShortDto> events = eventService.publicSearchEventsByFilter(filter, request,
                 sort, from, size);
+
         return ResponseEntity.ok(events);
     }
 

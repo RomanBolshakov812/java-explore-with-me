@@ -8,7 +8,7 @@ services:
       - "6541:5432"
     environment:
       - POSTGRES_DB=ewm-stats
-      - POSTGRES_USER=user1
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=iamroot
 
   stats-server:
@@ -23,7 +23,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-stats-db:5432/ewm-stats
       - SPRING_DRIVER_CLASS_NAME:org.postgresql.Driver
-      - SPRING_DATASOURCE_USERNAME:user1
+      - SPRING_DATASOURCE_USERNAME:postgres
       - SPRING_DATASOURCE_PASSWORD:iamroot
 
   ewm-main-db:
@@ -33,7 +33,7 @@ services:
       - "6542:5432"
     environment:
       - POSTGRES_DB=ewm-main
-      - POSTGRES_USER=user1
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=iamroot
 
   ewm-service:
@@ -47,5 +47,5 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-main-db:5432/ewm-main
       - SPRING_DRIVER_CLASS_NAME:org.postgresql.Driver
-      - SPRING_DATASOURCE_USERNAME:user1
+      - SPRING_DATASOURCE_USERNAME:postgres
       - SPRING_DATASOURCE_PASSWORD:iamroot

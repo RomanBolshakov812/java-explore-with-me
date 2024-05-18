@@ -7,11 +7,11 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.event.EventService;
-import ru.practicum.event.dto.EventFullDto;
-import ru.practicum.event.dto.EventShortDto;
-import ru.practicum.event.dto.NewEventDto;
-import ru.practicum.event.dto.UpdateEventUserRequest;
+import ru.practicum.event.dto.*;
+import ru.practicum.request.RequestService;
+import ru.practicum.request.dto.ParticipationRequestDto;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
@@ -25,11 +25,12 @@ import java.util.List;
 public class UserEventController {
 
     private final EventService eventService;
+    private final RequestService requestService;
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
     public EventFullDto addEvent(
-            @RequestBody @Validated NewEventDto newEventDto,
+            @RequestBody @Valid NewEventDto newEventDto,
             @PathVariable("userId") @NonNull @Positive Long userId) {
         return eventService.addEvent(newEventDto, userId);
     }
@@ -57,9 +58,31 @@ public class UserEventController {
     @PatchMapping("/{eventId}")
     @ResponseStatus(code = HttpStatus.OK)
     public EventFullDto updateEventByCurrentUser(
-            @RequestBody @Validated UpdateEventUserRequest updateEventUserRequest,
+            @RequestBody @Valid UpdateEventUserRequest updateEventUserRequest,/////////////////////////////////////////////////
             @PathVariable("userId") @NonNull Long userId,
             @PathVariable("eventId") @NonNull Long eventId) {
         return eventService.updateEventByCurrentUser(updateEventUserRequest, userId, eventId);
+    }
+
+    // Получение информации о запросах на участие в событии текущего пользователя
+    @GetMapping("/{eventId}/requests")
+    @ResponseStatus(code = HttpStatus.OK)
+    public List<ParticipationRequestDto> getRequestsByUserAndByEvent(
+            @PathVariable("userId") @NonNull Long userId,
+            @PathVariable("eventId") @NonNull Long eventId) {
+        return requestService.getRequestsByUserEvent(userId, eventId);
+    }
+
+    // Изменение статуса (подтверждение, отмена) заявок на участие в событии текущего пользователя
+    @PatchMapping("/{eventId}/requests")
+    @ResponseStatus(code = HttpStatus.OK)
+    public EventRequestStatusUpdateResult confirmationOfRequests(
+            @RequestBody @Valid EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest,
+            @PathVariable("userId") @NonNull Long userId,
+            @PathVariable("eventId") @NonNull Long eventId) {
+        return requestService.confirmationOfRequests(
+                eventRequestStatusUpdateRequest,
+                userId,
+                eventId);
     }
 }

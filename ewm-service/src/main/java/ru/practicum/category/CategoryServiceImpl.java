@@ -7,10 +7,12 @@ import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.error.exception.DependentEntitiesException;
+import ru.practicum.error.exception.IncorrectRequestParametersException;
 import ru.practicum.event.EventRepository;
 import ru.practicum.util.PageMaker;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.ConstraintViolationException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,8 +25,14 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto addCategory(CategoryDto categoryDto) {
-        Category category = CategoryMapper.toCategory(categoryDto);
-        return CategoryMapper.toCategoryDto(categoryRepository.save(category));
+        Category currentCategory = CategoryMapper.toCategory(categoryDto);
+        Category category;
+        try {
+            category = categoryRepository.save(currentCategory);
+        } catch (RuntimeException e) {
+            throw new IncorrectRequestParametersException("This name is taken!");
+        }
+        return CategoryMapper.toCategoryDto(category);
     }
 
     @Override
@@ -44,7 +52,13 @@ public class CategoryServiceImpl implements CategoryService {
         Category currentCategory = categoryRepository.findById(catId).orElseThrow(() ->
                 new EntityNotFoundException("Category with id=" + catId + " was not found"));
         currentCategory.setName(categoryDto.getName());
-        return CategoryMapper.toCategoryDto(categoryRepository.save(currentCategory));
+        Category category;
+        try {
+            category = categoryRepository.save(currentCategory);
+        } catch (RuntimeException e) {
+            throw new IncorrectRequestParametersException("This name is taken!");
+        }
+        return CategoryMapper.toCategoryDto(category);
     }
 
     @Override

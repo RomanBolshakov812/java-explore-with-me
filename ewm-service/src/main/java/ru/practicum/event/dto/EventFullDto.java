@@ -1,16 +1,15 @@
 package ru.practicum.event.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.user.dto.UserShortDto;
 import ru.practicum.event.model.Location;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class EventFullDto extends EventShortDto {
-
     private String createdOn;
     private String description;
     private Location location;

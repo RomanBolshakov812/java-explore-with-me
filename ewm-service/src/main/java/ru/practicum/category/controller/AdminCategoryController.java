@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.category.CategoryService;
 import ru.practicum.category.dto.CategoryDto;
 
+import javax.validation.Valid;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/admin/categories")
@@ -17,7 +19,7 @@ public class AdminCategoryController {
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
-    public CategoryDto addCategory(@RequestBody @Validated CategoryDto categoryDto) {
+    public CategoryDto addCategory(@RequestBody @Valid CategoryDto categoryDto) {
         return categoryService.addCategory(categoryDto);
     }
 
@@ -30,7 +32,7 @@ public class AdminCategoryController {
     @PatchMapping("/{catId}")
     @ResponseStatus(code = HttpStatus.OK)
     public CategoryDto updateCategory(
-            @RequestBody @Validated CategoryDto categoryDto,
+            @RequestBody @Valid CategoryDto categoryDto,
             @PathVariable("catId") @NonNull Long catId) {
         return categoryService.updateCategory(categoryDto, catId);
     }

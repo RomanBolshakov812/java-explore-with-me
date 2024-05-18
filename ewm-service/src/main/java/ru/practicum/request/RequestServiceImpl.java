@@ -2,15 +2,20 @@ package ru.practicum.request;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.error.exception.IncorrectRequestParametersException;
 import ru.practicum.event.EventRepository;
+import ru.practicum.event.dto.EventRequestStatusUpdateRequest;
+import ru.practicum.event.dto.EventRequestStatusUpdateResult;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.State;
+import ru.practicum.event.model.Status;
 import ru.practicum.request.dto.ParticipationRequestDto;
 import ru.practicum.request.mapper.RequestMapper;
 import ru.practicum.request.model.Request;
 import ru.practicum.user.UserRepository;
 
 import javax.persistence.EntityNotFoundException;
+import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -23,33 +28,46 @@ public class RequestServiceImpl implements RequestService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;/////////////////////////////////////////////////
     private final RequestRepository requestRepository;
-    private static  final DateTimeFormatter DATE_TIME_FORMATTER
+    private static  final DateTimeFormatter DATE_TIME_FORMATTER///////////////////////////////////////
             = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public ParticipationRequestDto createRequest(Long userId, Long eventId) {
+        // Проверка, что такой запрос еще не создан
         if (requestRepository.existsRequestByRequesterIdAndEventId(userId, eventId)) {
-            throw new ValidationException("This request has already been created!");
+            throw new IncorrectRequestParametersException("This request has already been created!");
         }
         Request request = new Request();
         request.setCreated(LocalDateTime.now());
         Event event = eventRepository.findById(eventId).orElseThrow(() ->
                 new EntityNotFoundException("Event with id=" + eventId  + " was not found"));
         // Событие должно быть опубликовано
-        // Инициатор не может создать реквест
-        // К-во одобренных заявок равно лимиту запросов
-        if (!event.getState().equals(State.PUBLISHED)
-                | event.getInitiator().getId().equals(userId)
-                | event.getConfirmedRequests().equals(event.getParticipantLimit())) {
-            throw new ValidationException("Only published events can by changed!");
+        if (!event.getState().equals(State.PUBLISHED)) {
+            throw new IncorrectRequestParametersException("Only published events can by changed!");
         }
-        // Если нет премодерации - request CONFIRMED
-        if (event.getRequestModeration()) {
-            request.setStatus("PENDING");
+        // Инициатор не может создать запрос
+        if (event.getInitiator().getId().equals(userId)) {
+            throw new IncorrectRequestParametersException("The event initiator cannot "
+                    + "create a request!");
+        }
+        // Превышается количество участников
+        if (event.getParticipantLimit() != 0) {
+            if (event.getConfirmedRequests().equals(event.getParticipantLimit())) {
+                throw new IncorrectRequestParametersException("Number of participants exceeded!");
+            }
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////////
+        // Если есть модерация запроса - request PENDING (сейчас сделано наоборот,///////////////////////////////////////////////////////////
+        // т.к. в postman почему-то требуется наоборот).
+        if (event.getRequestModeration() & event.getParticipantLimit() != 0) {/////////////////////////////////  !!!!!!!!!!!!!!!!!!!!!
+            request.setStatus(Status.PENDING.name());
         } else {
-            request.setStatus("CONFIRMED");
+            request.setStatus(Status.CONFIRMED.name());
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
         }
+        /////////////////////////////////////////////////////////////////////////////////////////////
+
         eventRepository.save(event);
         request.setEventId(eventId);
         request.setRequesterId(userId);
@@ -82,5 +100,81 @@ public class RequestServiceImpl implements RequestService {
             requestDtoList = RequestMapper.toParticipationRequestDtoList(requests);
         }
         return requestDtoList;
+    }
+
+    // Получение информации о запросах на участие в событии текущего пользователя
+    @Override
+    public List<ParticipationRequestDto> getRequestsByUserEvent(Long initiatorId, Long eventId) {
+        List<Request> requests = requestRepository.findAllByInitiatorEventId(initiatorId, eventId);
+        List<ParticipationRequestDto> requestDtoList = new ArrayList<>();
+        if (requests.size() > 0) {
+            requestDtoList = RequestMapper.toParticipationRequestDtoList(requests);
+        }
+        return requestDtoList;
+    }
+
+    // Изменение статуса (подтверждение, отмена) заявок на участие в событии текущего пользователя
+    @Override
+    public EventRequestStatusUpdateResult confirmationOfRequests(
+            EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest,
+            Long userId,
+            Long eventId) {
+        Event event = eventRepository.findById(eventId).orElseThrow(() ->
+                new EntityNotFoundException("Event with id=" + eventId + " was not found"));
+
+        int availableLimitOfParticipants = 0;// Остаток свободных мест
+        boolean participantsLimit = event.getParticipantLimit() > 0;// Есть лимит участников
+        if (participantsLimit) {
+            availableLimitOfParticipants =
+                    event.getParticipantLimit() - event.getConfirmedRequests();
+        }
+        List<Request> requests = requestRepository
+                .findRequestsWhereIdInIds(userId, eventId, eventRequestStatusUpdateRequest
+                        .getRequestIds());
+        String status = eventRequestStatusUpdateRequest.getStatus();
+        EventRequestStatusUpdateResult eventRequestStatusUpdateResult
+                = new EventRequestStatusUpdateResult();
+        if (status.equals("CONFIRMED")) {
+            // Проверка, что количество одобренных запросов не больше количества оставшихся мест
+            // (при наличии лимита количества участников)
+            if (participantsLimit
+                    && eventRequestStatusUpdateRequest.getRequestIds().size()
+                    > availableLimitOfParticipants) {
+                throw new IncorrectRequestParametersException("The participant limit "
+                        + "has been reached");
+            }
+            // Присвоение всем запросам статуса CONFIRMED
+            eventRequestStatusUpdateResult
+                    .setConfirmedRequests(changeRequestStatus(requests, status));
+            // Увеличение в ивенте количества одобренных запросов на участие
+            event.setConfirmedRequests(event.getConfirmedRequests()
+                    + eventRequestStatusUpdateRequest.getRequestIds().size());
+            eventRepository.save(event);
+        } else {
+            eventRequestStatusUpdateResult
+                    .setRejectedRequests(changeRequestStatus(requests, status));
+        }
+        return eventRequestStatusUpdateResult;
+    }
+
+    private List<ParticipationRequestDto> changeRequestStatus(
+            List<Request> requests,
+            String status) {
+        List<ParticipationRequestDto> participationRequestDtoList = new ArrayList<>();
+        for (Request request : requests) {
+            // Проверка - на попытку отклонения уже одобренного запроса
+            if (status.equals("REJECTED")) {
+                if (request.getStatus().equals("CONFIRMED")) {
+                    throw new IncorrectRequestParametersException("Attempting to reject "
+                            + "an approved application");
+                }
+            }
+            request.setStatus(status);
+            ParticipationRequestDto participationRequestDto
+                    = RequestMapper.toParticipationRequestDto(request);
+            participationRequestDtoList.add(participationRequestDto);
+        }
+        requestRepository.saveAll(requests);// ?????????????????????????????????????????????????????????????????
+        return participationRequestDtoList;
     }
 }

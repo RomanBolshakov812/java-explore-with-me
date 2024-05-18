@@ -29,6 +29,7 @@ public class StatsServiceImpl implements StatsService {
     public List<ViewStats> getStats(StatsFilter filter, Boolean unique) {
         Specification<Hit> specification = hitSpecification.build(filter);
         List<Hit> hitList = hitRepository.findAll(specification);
+        //List<Hit> hitList = hitRepository.findAll();//////////////////////////////////////////////////////////////////
         return HitMapper.toViewStatsList(hitList, unique);
     }
 }

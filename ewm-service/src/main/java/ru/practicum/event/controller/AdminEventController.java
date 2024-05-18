@@ -12,6 +12,7 @@ import ru.practicum.event.dto.*;
 import ru.practicum.event.model.State;
 import ru.practicum.event.specification.EventFilter;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Positive;
@@ -56,7 +57,7 @@ public class AdminEventController {
     @PatchMapping("/{eventId}")
     @ResponseStatus(code = HttpStatus.OK)
     public EventFullDto updateEventByAdmin(
-            @RequestBody UpdateEventAdminRequest updateEventAdminRequest,
+            @RequestBody @Valid UpdateEventAdminRequest updateEventAdminRequest,
             @PathVariable("eventId") @NonNull @Positive Long eventId) {
         return eventService.updateEventByAdmin(updateEventAdminRequest, eventId);
     }

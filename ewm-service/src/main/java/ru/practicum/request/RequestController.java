@@ -22,6 +22,7 @@ public class RequestController {
 
     private final RequestService requestService;
 
+    // Добавление запроса от текущего пользователя на участие в событии
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
     public ParticipationRequestDto createRequest(
@@ -30,12 +31,15 @@ public class RequestController {
         return requestService.createRequest(userId, eventId);
     }
 
+    // Отмена своего запроса на участие в событии
     @PatchMapping("/{requestId}/cancel")
     @ResponseStatus(code = HttpStatus.OK)
     public ParticipationRequestDto cancelRequest(@PathVariable Long userId, @PathVariable Long requestId) {
         return requestService.cancelRequest(userId, requestId);
     }
 
+
+    // Получение информации о заявках текущего пользователя на участие в чужих событиях
     @GetMapping
     @ResponseStatus(code = HttpStatus.OK)
     public List<ParticipationRequestDto> getRequestsByUser(

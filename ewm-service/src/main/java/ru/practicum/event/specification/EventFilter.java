@@ -1,8 +1,6 @@
 package ru.practicum.event.specification;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.event.model.State;
 
@@ -11,7 +9,9 @@ import javax.persistence.Enumerated;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
+//@Data/////////////////////////////////////////////////////////////////////////
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class EventFilter {

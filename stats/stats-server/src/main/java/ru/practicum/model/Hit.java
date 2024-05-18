@@ -26,5 +26,5 @@ public class Hit {
     private String ip;
 
     @Column(name = "ts", nullable = false)
-    private LocalDateTime timestamp;
+    private LocalDateTime ts;
 }

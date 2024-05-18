@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.user.dto.NewUserRequest;
 import ru.practicum.user.dto.UserDto;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.PositiveOrZero;
@@ -22,7 +23,7 @@ public class AdminUserController {
 
     @PostMapping
     @ResponseStatus(code = HttpStatus.CREATED)
-    public UserDto createUser(@RequestBody @Validated NewUserRequest newUserRequest) {
+    public UserDto createUser(@RequestBody @Valid NewUserRequest newUserRequest) {
         return userService.addUser(newUserRequest);
     }
 
@@ -36,7 +37,7 @@ public class AdminUserController {
     public List<UserDto> getUser(
             @RequestParam(value = "ids", required = false) List<Long> ids,
             @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(value = "size", defaultValue = "20") @Min(1) @Max(1000) Integer size) {
+            @RequestParam(value = "size", defaultValue = "10") @Min(1) @Max(100000) Integer size) {
         return userService.getUsers(ids, from, size);
     }
 }

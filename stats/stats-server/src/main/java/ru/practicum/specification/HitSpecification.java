@@ -14,30 +14,56 @@ import ru.practicum.model.Hit;
 
 @Component
 public class HitSpecification {
+    //private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;////////////////////////////////////////
     private static  final DateTimeFormatter DATE_TIME_FORMATTER
-            = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");/////////////////////////////////
+            = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public Specification<Hit> build(StatsFilter filter) {
         List<Specification<Hit>> specifications = new ArrayList<>();
         specifications.add(filter.getUris() == null ? null : uriIn(filter.getUris()));
-        specifications.add(timestampBetween(filter.getStart(), filter.getEnd()));
-
-        specifications = specifications.stream().filter(Objects::nonNull).collect(Collectors.toList());
+        specifications.add(byTimestamp(filter.getStart(), filter.getEnd()));
+        specifications = specifications.stream().filter(Objects::nonNull)
+                .collect(Collectors.toList());
         return specifications.stream().reduce(Specification::and).orElse(null);
     }
 
-    private Specification<Hit> timestampBetween(String start, String end) {
 
-        LocalDateTime startDateTime;
-        LocalDateTime endDateTime;
+    private Specification<Hit> byTimestamp(String start, String end) {
+
         try {
+            LocalDateTime startDateTime;
+            LocalDateTime endDateTime;
             startDateTime = LocalDateTime.parse(start, DATE_TIME_FORMATTER);
             endDateTime = LocalDateTime.parse(end, DATE_TIME_FORMATTER);
+//            startDateTime = LocalDateTime.parse(start, DATE_TIME_FORMATTER).minusMinutes(1);
+//            endDateTime = LocalDateTime.parse(end, DATE_TIME_FORMATTER).plusMinutes(1);
+            if (startDateTime.equals(endDateTime)) {
+                return (root, query, cb) -> cb.equal(root.get("ts"), startDateTime);
+            } else {
+                return (root, query, cb) ->
+                        cb.between(root.get("ts"), startDateTime, endDateTime);
+            }
         } catch (DateTimeParseException exception) {
             throw new RuntimeException("Incorrect date value!");/////////////////////////////////////////////////////////////////////////
         }
-        return (root, query, cb) -> cb.between(root.get("timestamp"), startDateTime, endDateTime);
     }
+
+//    private Specification<Hit> byTimestamp(String start, String end) {
+//        LocalDateTime startDateTime;
+//        LocalDateTime endDateTime;
+//        try {
+//            startDateTime = LocalDateTime.parse(start, DATE_TIME_FORMATTER);
+//            endDateTime = LocalDateTime.parse(end, DATE_TIME_FORMATTER);
+//        } catch (DateTimeParseException exception) {
+//            throw new RuntimeException("Incorrect date value!");/////////////////////////////////////////////////////////////////////////
+//        }
+//        if (startDateTime.equals(endDateTime)) {
+//            return (root, query, cb) -> cb.equal(root.get("ts"), startDateTime);
+//        } else {
+//            return (root, query, cb) ->
+//                    cb.between(root.get("ts"), startDateTime, endDateTime);
+//        }
+//    }
 
     private Specification<Hit> uriIn(List<String> uris) {
         return (root, query, cb) -> cb.in(root.get("uri")).value(uris);

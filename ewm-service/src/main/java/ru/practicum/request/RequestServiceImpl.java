@@ -49,10 +49,11 @@ public class RequestServiceImpl implements RequestService {
                 throw new IncorrectRequestParametersException("Number of participants exceeded!");
             }
         }
-        if (event.getRequestModeration()) {
-            if (event.getParticipantLimit() != 0) {
-                request.setStatus(Status.PENDING.name());
-            }
+        if (event.getParticipantLimit() == 0) {
+            request.setStatus(Status.CONFIRMED.name());
+            event.setConfirmedRequests(event.getConfirmedRequests() + 1);
+        } else if (event.getRequestModeration()) {
+            request.setStatus(Status.PENDING.name());
         } else {
             request.setStatus(Status.CONFIRMED.name());
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);

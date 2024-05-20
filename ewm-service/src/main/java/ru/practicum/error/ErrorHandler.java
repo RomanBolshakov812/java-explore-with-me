@@ -6,6 +6,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolationException;
 import javax.validation.ValidationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -47,6 +48,7 @@ public class ErrorHandler {
     // 409
     @ExceptionHandler({
             ConstraintViolationException.class,
+            DataIntegrityViolationException.class,
             IncorrectRequestParametersException.class,
             DependentEntitiesException.class})
     @ResponseStatus(HttpStatus.CONFLICT)

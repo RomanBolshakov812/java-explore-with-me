@@ -14,8 +14,8 @@ public class RequestMapper {
         return new ParticipationRequestDto(
                 request.getId(),
                 request.getCreated().format(DATE_TIME_FORMATTER),
-                request.getEventId(),
-                request.getRequesterId(),
+                request.getEvent().getId(),
+                request.getRequester().getId(),
                 request.getStatus()
         );
     }

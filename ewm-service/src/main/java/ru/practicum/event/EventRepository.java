@@ -5,7 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.event.model.Event;
 
@@ -16,6 +15,5 @@ public interface EventRepository extends JpaRepository<Event, Long>,
 
     Long countEventsByCategoryId(Long catId);
 
-    @Query(nativeQuery = true, value = "select * from events e where e.id in ?1")
-    List<Event> findAllWhereIdInIds(List<Long> ids);
+    List<Event> findAllByIdIn(List<Long> ids);
 }

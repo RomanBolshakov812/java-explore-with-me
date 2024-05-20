@@ -2,7 +2,6 @@ package ru.practicum.event;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -10,7 +9,6 @@ import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -32,11 +30,11 @@ import ru.practicum.event.specification.EventSpecification;
 import ru.practicum.user.UserRepository;
 import ru.practicum.user.model.User;
 import ru.practicum.util.PageMaker;
+import ru.practicum.util.ViewGetter;
 
 @Service
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
-    @Autowired
     private final StatsClient statsClient;
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
@@ -65,7 +63,7 @@ public class EventServiceImpl implements EventService {
         userRepository.findById(initiatorId).orElseThrow(() ->
                 new EntityNotFoundException("User with id=" + initiatorId + " was not found"));
         List<Event> events = eventRepository.findEventsByInitiatorId(initiatorId, page).toList();
-        HashMap<Long, Long> views = getViews(events,
+        HashMap<Long, Long> views = ViewGetter.getViews(statsClient, events,
                 null, null);
         return EventMapper.toEventShortDtoList(events, views);
     }
@@ -163,7 +161,7 @@ public class EventServiceImpl implements EventService {
         Pageable page = PageMaker.toPage(from, size);
         Specification<Event> specification = eventSpecification.build(filter);
         List<Event> eventList = eventRepository.findAll(specification, page).toList();
-        HashMap<Long, Long> views = getViews(eventList,
+        HashMap<Long, Long> views = ViewGetter.getViews(statsClient, eventList,
                 filter.getRangeStart(), filter.getRangeEnd());
         return EventMapper.toEventFulltDtoList(eventList, views);
     }
@@ -191,7 +189,7 @@ public class EventServiceImpl implements EventService {
         Specification<Event> specification = eventSpecification.build(filter);
         List<Event> eventList = eventRepository.findAll(specification, page).toList();
         addHit(request);
-        HashMap<Long, Long> views = getViews(eventList,
+        HashMap<Long, Long> views = ViewGetter.getViews(statsClient, eventList,
                 filter.getRangeStart(), filter.getRangeEnd());
 
         return EventMapper.toEventShortDtoList(eventList, views);
@@ -267,33 +265,6 @@ public class EventServiceImpl implements EventService {
         }
         eventRepository.save(currentEvent);
         return EventMapper.toEventFullDto(currentEvent);
-    }
-
-    public HashMap<Long, Long> getViews(List<Event> events, String start, String end) {
-        if (start == null) {
-            start = LocalDateTime.now().format(DATE_TIME_FORMATTER);
-        }
-        if (end == null) {
-            end = "9999-12-31 23:59:59";
-        }
-        List<Long> idsList = new ArrayList<>(); // Список айдишников
-        for (Event event : events) {
-            idsList.add(event.getId());
-        }
-        List<String> uris = new ArrayList<>(); // Список урлов
-        for (Long eventId : idsList) {
-            uris.add("/events/" + eventId);
-        }
-        ArrayList<ViewStats> viewStats = statsClient.getStats(start, end, uris, false);
-
-        HashMap<Long, Long> views = new HashMap<>();
-        if (viewStats.size() != 0) {
-            for (Long eventId : idsList) {
-                views.put(eventId, viewStats.get(0).getHits());
-                viewStats.remove(0);
-            }
-        }
-        return views;
     }
 
     private void addHit(HttpServletRequest request) {

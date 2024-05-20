@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.practicum.event.model.Event;
+import ru.practicum.user.model.User;
 
 @Getter
 @Setter
@@ -20,10 +22,10 @@ public class Request {
     private Long id;
     @Column(name = "created", nullable = false)
     private LocalDateTime created;
-    @Column(name = "event", nullable = false)
-    private Long eventId;
-    @Column(name = "requester", nullable = false)
-    private Long requesterId;
+    @ManyToOne
+    private Event event;
+    @ManyToOne
+    private User requester;
     @Column(name = "status", nullable = false)
     private String status;
 }

@@ -12,12 +12,13 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     List<Request> findAllByRequesterId(Long requesterId);
 
-    @Query(nativeQuery = true, value = "select * from requests r where r.event = "
-            + "(select e.id from events e where e.initiator_id = ?1 and e.id = ?2)")
-    List<Request> findAllByInitiatorEventId(Long initiatorId, Long eventId);
+    // Получение информации о запросах на участие в событии текущего пользователя
+    @Query("select r from Request r where  r.event.id = ?1 and r.event.initiator.id = ?2")
+    List<Request> findAllByInitiatorEventId(Long eventId, Long initiatorId);
 
-    @Query(nativeQuery = true, value = "select * from requests r where r.event "
-            + "= (select e.id from events e where e.id = ?2 and e.initiator_id = ?1) "
+    // Получение заявок (id которых входят в список ids) на участие в событии текущего пользователя
+    @Query("select r from Request r where r.event.id = ?1 and r.event.initiator.id = ?2 "
             + "and r.id in ?3")
-    List<Request> findRequestsWhereIdInIds(Long userId, Long eventId, List<Long> ids);
+    List<Request> findRequestsWhereIdInIds(Long eventId, Long initiatorId, List<Long> ids);
 }
+

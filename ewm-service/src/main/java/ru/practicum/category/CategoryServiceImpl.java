@@ -24,13 +24,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto addCategory(CategoryDto categoryDto) {
         Category currentCategory = CategoryMapper.toCategory(categoryDto);
-        Category category;
-        try {
-            category = categoryRepository.save(currentCategory);
-        } catch (RuntimeException e) {
-            throw new IncorrectRequestParametersException("This name is taken!");
-        }
-        return CategoryMapper.toCategoryDto(category);
+        return CategoryMapper.toCategoryDto(categoryRepository.save(currentCategory));
     }
 
     @Override

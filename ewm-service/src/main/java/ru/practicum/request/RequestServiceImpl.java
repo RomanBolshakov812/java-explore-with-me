@@ -17,12 +17,15 @@ import ru.practicum.event.model.Status;
 import ru.practicum.request.dto.ParticipationRequestDto;
 import ru.practicum.request.mapper.RequestMapper;
 import ru.practicum.request.model.Request;
+import ru.practicum.user.UserRepository;
+import ru.practicum.user.model.User;
 
 @Service
 @RequiredArgsConstructor
 public class RequestServiceImpl implements RequestService {
     private final EventRepository eventRepository;
     private final RequestRepository requestRepository;
+    private final UserRepository userRepository;
 
     @Override
     public ParticipationRequestDto createRequest(Long userId, Long eventId) {
@@ -58,9 +61,11 @@ public class RequestServiceImpl implements RequestService {
             request.setStatus(Status.CONFIRMED.name());
             event.setConfirmedRequests(event.getConfirmedRequests() + 1);
         }
+        User requester = userRepository.findById(userId).orElseThrow(() ->
+                new EntityNotFoundException("User with id=" + userId  + " was not found"));
         eventRepository.save(event);
-        request.setEventId(eventId);
-        request.setRequesterId(userId);
+        request.setEvent(event);
+        request.setRequester(requester);
         requestRepository.save(request);
         return RequestMapper.toParticipationRequestDto(request);
     }
@@ -69,12 +74,10 @@ public class RequestServiceImpl implements RequestService {
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
         Request request = requestRepository.findById(requestId).orElseThrow(() ->
                 new EntityNotFoundException("Request with id=" + requestId + " was not found"));
-        if (!request.getRequesterId().equals(userId)) {
+        if (!request.getRequester().getId().equals(userId)) {
             throw new ValidationException("Only event initiator can cancel request!");
         }
-        Long eventId = request.getEventId();
-        Event event = eventRepository.findById(eventId).orElseThrow(() ->
-                new EntityNotFoundException("Event with id=" + eventId + " was not found"));
+        Event event = request.getEvent();
         event.setConfirmedRequests(event.getConfirmedRequests() - 1);
         request.setStatus("CANCELED");
         eventRepository.save(event);
@@ -82,6 +85,7 @@ public class RequestServiceImpl implements RequestService {
         return RequestMapper.toParticipationRequestDto(request);
     }
 
+    // Получение информации о всех запросах текущего пользователя на участие в событиях
     @Override
     public List<ParticipationRequestDto> getRequestsByUser(Long userId) {
         List<Request> requests = requestRepository.findAllByRequesterId(userId);
@@ -95,7 +99,7 @@ public class RequestServiceImpl implements RequestService {
     // Получение информации о запросах на участие в событии текущего пользователя
     @Override
     public List<ParticipationRequestDto> getRequestsByUserEvent(Long initiatorId, Long eventId) {
-        List<Request> requests = requestRepository.findAllByInitiatorEventId(initiatorId, eventId);
+        List<Request> requests = requestRepository.findAllByInitiatorEventId(eventId, initiatorId);
         List<ParticipationRequestDto> requestDtoList = new ArrayList<>();
         if (requests.size() > 0) {
             requestDtoList = RequestMapper.toParticipationRequestDtoList(requests);
@@ -118,7 +122,7 @@ public class RequestServiceImpl implements RequestService {
                     event.getParticipantLimit() - event.getConfirmedRequests();
         }
         List<Request> requests = requestRepository
-                .findRequestsWhereIdInIds(userId, eventId, eventRequestStatusUpdateRequest
+                .findRequestsWhereIdInIds(eventId, userId, eventRequestStatusUpdateRequest
                         .getRequestIds());
         String status = eventRequestStatusUpdateRequest.getStatus();
         EventRequestStatusUpdateResult eventRequestStatusUpdateResult

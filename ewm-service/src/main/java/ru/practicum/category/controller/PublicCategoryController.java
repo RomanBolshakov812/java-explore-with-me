@@ -24,7 +24,7 @@ public class PublicCategoryController {
     @ResponseStatus(code = HttpStatus.OK)
     public List<CategoryDto> getCategories(
             @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(value = "size", defaultValue = "10") @Min(1) @Max(1000000) Integer size) {
+            @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
         return categoryService.getCategories(from, size);
     }
 

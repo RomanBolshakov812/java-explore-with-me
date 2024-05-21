@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.EndpointHit;
 import ru.practicum.ViewStats;
 import ru.practicum.category.CategoryRepository;
@@ -34,6 +35,7 @@ import ru.practicum.util.ViewGetter;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class EventServiceImpl implements EventService {
     private final StatsClient statsClient;
     private final EventRepository eventRepository;
@@ -58,6 +60,7 @@ public class EventServiceImpl implements EventService {
 
     // Получение событий, добавленных текущим пользователем
     @Override
+    @Transactional(readOnly = true)
     public List<EventShortDto> getEventsByUser(Long initiatorId, Integer from, Integer size) {
         Pageable page = PageMaker.toPage(from, size);
         userRepository.findById(initiatorId).orElseThrow(() ->
@@ -70,6 +73,7 @@ public class EventServiceImpl implements EventService {
 
     // Получение полной информации о событии, добавленной текущим пользователем
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto getEventByCurrentUser(Long userId, Long eventId) {
         Event event = eventRepository.findById(eventId).orElseThrow(() ->
                 new EntityNotFoundException("Event with id=" + eventId  + " was not found"));
@@ -157,6 +161,7 @@ public class EventServiceImpl implements EventService {
 
     // Поиск событий
     @Override
+    @Transactional(readOnly = true)
     public List<EventFullDto> searchEventsByAdmin(EventFilter filter, Integer from, Integer size) {
         Pageable page = PageMaker.toPage(from, size);
         Specification<Event> specification = eventSpecification.build(filter);
@@ -168,6 +173,7 @@ public class EventServiceImpl implements EventService {
 
     // Получение событий с возможностью фильтрации
     @Override
+    @Transactional(readOnly = true)
     public List<EventShortDto> publicSearchEventsByFilter(
             EventFilter filter,
             HttpServletRequest request,
@@ -197,6 +203,7 @@ public class EventServiceImpl implements EventService {
 
     //Получение подробной информации об опубликованном событии по его идентификатору
     @Override
+    @Transactional(readOnly = true)
     public EventFullDto getEventById(Long id, HttpServletRequest request) {
         // Видимо нужно было сразу сделать поиск ивента по id, у которого state был бы PUBLISHED,
         // но я так и не разобрался как работать с enum в запросе к базе

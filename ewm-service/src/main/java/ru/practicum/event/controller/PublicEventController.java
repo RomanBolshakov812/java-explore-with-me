@@ -42,7 +42,7 @@ public class PublicEventController {
             @RequestParam(value = "onlyAvailable", defaultValue = "false") Boolean onlyAvailable,
             @RequestParam(value = "sort", defaultValue = "EVENT_DATE") String sort,
             @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(value = "size", defaultValue = "10") @Min(1) @Max(1000) Integer size,
+            @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size,
             HttpServletRequest request) {
         if (rangeStart == null || rangeEnd == null) {
             rangeStart = LocalDateTime.now().format(DATE_TIME_FORMATTER);

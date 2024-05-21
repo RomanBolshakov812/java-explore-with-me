@@ -27,7 +27,7 @@ public class PublicCompilationController {
             @RequestParam(value = "pinned", required = false) Boolean pinned,
             @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
             @RequestParam(value = "size", defaultValue = "10")
-            @Min(1) @Max(10000000) Integer size) {
+            @Min(1) Integer size) {
         return compilationService.getCompilations(pinned, from, size);
     }
 

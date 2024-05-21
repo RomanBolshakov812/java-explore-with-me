@@ -6,6 +6,7 @@ import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.model.Category;
@@ -16,6 +17,7 @@ import ru.practicum.util.PageMaker;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
@@ -54,6 +56,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CategoryDto> getCategories(Integer from, Integer size) {
         Pageable page = PageMaker.toPage(from, size);
         List<CategoryDto> categoryDtoList = new ArrayList<>();
@@ -66,6 +69,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CategoryDto getCategoryById(Long catId) {
         Category category = categoryRepository.findById(catId).orElseThrow(() ->
                 new EntityNotFoundException("Category with id=" + catId + " was not found"));

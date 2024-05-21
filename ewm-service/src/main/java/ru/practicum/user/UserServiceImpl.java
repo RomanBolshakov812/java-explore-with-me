@@ -5,6 +5,7 @@ import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.error.exception.IncorrectRequestParametersException;
 import ru.practicum.user.dto.NewUserRequest;
 import ru.practicum.user.dto.UserDto;
@@ -14,6 +15,7 @@ import ru.practicum.util.PageMaker;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
@@ -38,6 +40,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
         Pageable page = PageMaker.toPage(from, size);
         List<User> users;

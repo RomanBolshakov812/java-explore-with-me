@@ -7,6 +7,7 @@ import javax.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.EndpointHit;
 import ru.practicum.ViewStats;
 import ru.practicum.mapper.HitMapper;
@@ -17,6 +18,7 @@ import ru.practicum.specification.StatsFilter;
 
 @Service
 @RequiredArgsConstructor
+
 public class StatsServiceImpl implements StatsService {
 
     private final HitRepository hitRepository;
@@ -25,12 +27,14 @@ public class StatsServiceImpl implements StatsService {
             = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
+    @Transactional
     public void addHit(EndpointHit endpointHit) {
         Hit hit = HitMapper.toHit(endpointHit);
         hitRepository.save(hit);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ViewStats> getStats(StatsFilter filter, Boolean unique) {
         LocalDateTime start = LocalDateTime.parse(filter.getStart(), DATE_TIME_FORMATTER);
         LocalDateTime end = LocalDateTime.parse(filter.getEnd(), DATE_TIME_FORMATTER);

@@ -35,7 +35,7 @@ public class AdminEventController {
             @RequestParam(value = "rangeStart", required = false) String rangeStart,
             @RequestParam(value = "rangeEnd", required = false) String rangeEnd,
             @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(value = "size", defaultValue = "10") @Min(1) @Max(1000) Integer size) {
+            @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
         EventFilter filter = new EventFilter();
         filter.setUsers(users);
         filter.setStates(states);

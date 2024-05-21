@@ -6,6 +6,7 @@ import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.client.StatsClient;
 import ru.practicum.compilation.dto.CompilationDto;
 import ru.practicum.compilation.dto.NewCompilationDto;
@@ -21,6 +22,7 @@ import ru.practicum.util.ViewGetter;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class CompilationServiceImpl implements CompilationService {
 
     private final StatsClient statsClient;
@@ -82,6 +84,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     // Получение подборок событий
     @Override
+    @Transactional(readOnly = true)
     public List<CompilationDto> getCompilations(Boolean pinned, Integer from, Integer size) {
         Pageable page = PageMaker.toPage(from, size);
         List<CompilationDto> compilationDtoList = new ArrayList<>();
@@ -112,6 +115,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     // Получение подборки событий по её id
     @Override
+    @Transactional(readOnly = true)
     public CompilationDto getCompilationById(Long compId) {
         Compilation compilation = compilationRepository.findById(compId).orElseThrow(() ->
                 new EntityNotFoundException("Compilation with id=" + compId + " was not found"));

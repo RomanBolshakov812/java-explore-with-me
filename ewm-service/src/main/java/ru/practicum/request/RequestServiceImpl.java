@@ -7,6 +7,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.error.exception.IncorrectRequestParametersException;
 import ru.practicum.event.EventRepository;
 import ru.practicum.event.dto.EventRequestStatusUpdateRequest;
@@ -22,6 +23,7 @@ import ru.practicum.user.model.User;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class RequestServiceImpl implements RequestService {
     private final EventRepository eventRepository;
     private final RequestRepository requestRepository;
@@ -87,6 +89,7 @@ public class RequestServiceImpl implements RequestService {
 
     // Получение информации о всех запросах текущего пользователя на участие в событиях
     @Override
+    @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getRequestsByUser(Long userId) {
         List<Request> requests = requestRepository.findAllByRequesterId(userId);
         List<ParticipationRequestDto> requestDtoList = new ArrayList<>();
@@ -98,6 +101,7 @@ public class RequestServiceImpl implements RequestService {
 
     // Получение информации о запросах на участие в событии текущего пользователя
     @Override
+    @Transactional(readOnly = true)
     public List<ParticipationRequestDto> getRequestsByUserEvent(Long initiatorId, Long eventId) {
         List<Request> requests = requestRepository.findAllByInitiatorEventId(eventId, initiatorId);
         List<ParticipationRequestDto> requestDtoList = new ArrayList<>();

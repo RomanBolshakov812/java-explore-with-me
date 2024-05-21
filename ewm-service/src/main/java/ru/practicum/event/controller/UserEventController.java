@@ -40,7 +40,7 @@ public class UserEventController {
     public List<EventShortDto> getEventsByUser(
             @PathVariable("userId") @NonNull Long userId,
             @RequestParam(value = "from", defaultValue = "0") @PositiveOrZero Integer from,
-            @RequestParam(value = "size", defaultValue = "10") @Min(1) @Max(1000) Integer size) {
+            @RequestParam(value = "size", defaultValue = "10") @Min(1) Integer size) {
         return eventService.getEventsByUser(userId, from, size);
     }
 

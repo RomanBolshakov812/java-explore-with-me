@@ -7,7 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.model.Category;
-import ru.practicum.event.dto.*;
+import ru.practicum.event.dto_comment.CommentDto;
+import ru.practicum.event.dto_event.EventFullDto;
+import ru.practicum.event.dto_event.EventShortDto;
+import ru.practicum.event.dto_event.NewEventDto;
+import ru.practicum.event.model.Comment;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.Location;
 import ru.practicum.event.model.State;
@@ -43,6 +47,7 @@ public class EventMapper {
                event.getPaid(),
                event.getTitle(),
                0L,
+                new ArrayList<>(),
                event.getCreated().toString(),
                event.getDescription(),
                location,
@@ -92,27 +97,38 @@ public class EventMapper {
                 UserMapper.toUserShortDto(event.getInitiator()),
                 event.getPaid(),
                 event.getTitle(),
-                0L
+                0L,
+                new ArrayList<>()
         );
     }
 
-    public static List<EventShortDto> toEventShortDtoList(List<Event> events,
-                                                          HashMap<Long, Long> views) {
+    public static List<EventShortDto> toEventShortDtoList(
+            List<Event> events,
+            HashMap<Long, Long> views,
+            HashMap<Long, List<Comment>> commentsByEvent) {
         List<EventShortDto> list = new ArrayList<>();
         for (Event event : events) {
             EventShortDto eventShortDto = toEventShortDto(event);
             eventShortDto.setViews(views.get(eventShortDto.getId()));
+            List<CommentDto> commentDtoList
+                    = CommentMapper.toListCommentDto(commentsByEvent.get(event.getId()));
+            eventShortDto.setComments(commentDtoList);
             list.add(eventShortDto);
         }
         return list;
     }
 
-    public static List<EventFullDto> toEventFulltDtoList(List<Event> events,
-                                                         HashMap<Long, Long> views) {
+    public static List<EventFullDto> toEventFulltDtoList(
+            List<Event> events,
+            HashMap<Long, Long> views,
+            HashMap<Long, List<Comment>> commentsByEvent) {
         List<EventFullDto> list = new ArrayList<>();
         for (Event event : events) {
             EventFullDto eventFullDto = toEventFullDto(event);
             eventFullDto.setViews(views.get(eventFullDto.getId()));
+            List<CommentDto> commentDtoList
+                    = CommentMapper.toListCommentDto(commentsByEvent.get(event.getId()));
+            eventFullDto.setComments(commentDtoList);
             list.add(eventFullDto);
         }
         return list;

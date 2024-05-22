@@ -4,7 +4,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import ru.practicum.event.dto.EventShortDto;
+import ru.practicum.event.dto_event.EventShortDto;
 
 @Getter
 @Setter

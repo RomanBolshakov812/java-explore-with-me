@@ -1,10 +1,12 @@
-package ru.practicum.event.dto;
+package ru.practicum.event.dto_event;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.category.dto.CategoryDto;
+import ru.practicum.event.dto_comment.CommentDto;
 import ru.practicum.user.dto.UserShortDto;
 
 @Getter
@@ -21,6 +23,7 @@ public class EventShortDto implements Comparable<EventShortDto> {
     private Boolean paid;
     private String title;
     private Long views;
+    private List<CommentDto> comments;
 
     @Override
     public int compareTo(EventShortDto otherEventShortDto) {

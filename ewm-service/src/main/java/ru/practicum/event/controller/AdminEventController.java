@@ -2,9 +2,7 @@ package ru.practicum.event.controller;
 
 import java.util.List;
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.*;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.event.EventService;
-import ru.practicum.event.dto.*;
+import ru.practicum.event.dto_event.EventFullDto;
+import ru.practicum.event.dto_event.UpdateEventAdminRequest;
 import ru.practicum.event.model.State;
 import ru.practicum.event.specification.EventFilter;
 
@@ -54,5 +53,12 @@ public class AdminEventController {
             @RequestBody @Valid UpdateEventAdminRequest updateEventAdminRequest,
             @PathVariable("eventId") @NonNull @Positive Long eventId) {
         return eventService.updateEventByAdmin(updateEventAdminRequest, eventId);
+    }
+
+    // Удаление комментария админом
+    @DeleteMapping("/comments/{commentId}")
+    @ResponseStatus(code = HttpStatus.NO_CONTENT)
+    public void deleteComment(@PathVariable("commentId") @NotNull @Positive Long commentId) {
+        eventService.deleteCommentByAdmin(commentId);
     }
 }

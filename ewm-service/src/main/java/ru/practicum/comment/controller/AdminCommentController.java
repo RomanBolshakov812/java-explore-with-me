@@ -13,7 +13,7 @@ import javax.validation.constraints.Positive;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "comments/admin/comments", produces = MediaType.APPLICATION_JSON_VALUE)
-public class AdminEventController {
+public class AdminCommentController {
     private final CommentService commentService;
 
     // Удаление комментария админом

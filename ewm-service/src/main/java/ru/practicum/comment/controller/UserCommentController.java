@@ -17,7 +17,7 @@ import javax.validation.constraints.Positive;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/comments/users/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
-public class UserEventController {
+public class UserCommentController {
 
     private final CommentService commentService;
 

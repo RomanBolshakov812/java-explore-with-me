@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(path = "/comments", produces = MediaType.APPLICATION_JSON_VALUE)
-public class PublicEventController {
+public class PublicCommentController {
     private final CommentService commentService;
     private static  final DateTimeFormatter DATE_TIME_FORMATTER
             = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -29,7 +29,7 @@ public class PublicEventController {
     }
 
     // Получение всех комментов события по id события
-    @GetMapping("/events/{eventId}")
+    @GetMapping("/events/{eventId}/comments")
     @ResponseStatus(code = HttpStatus.OK)
     public List<CommentDto> getCommentsByEvent(
             @PathVariable("eventId") @NonNull Long eventId) {

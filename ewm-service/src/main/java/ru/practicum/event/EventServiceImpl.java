@@ -216,7 +216,7 @@ public class EventServiceImpl implements EventService {
         return EventMapper.toEventShortDtoList(eventList, views, commentsCountByEvent);
     }
 
-    //Получение подробной информации об опубликованном событии по его идентификатору
+    // Получение подробной информации об опубликованном событии по его идентификатору
     @Override
     @Transactional(readOnly = true)
     public EventFullDto getEventById(Long eventId, HttpServletRequest request) {

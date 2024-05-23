@@ -9,10 +9,10 @@ import ru.practicum.category.mapper.CategoryMapper;
 import ru.practicum.category.model.Category;
 import ru.practicum.comment.dto.CommentDto;
 import ru.practicum.comment.manner.CommentMapper;
+import ru.practicum.comment.model.Comment;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.dto.NewEventDto;
-import ru.practicum.comment.model.Comment;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.Location;
 import ru.practicum.event.model.State;
@@ -48,7 +48,8 @@ public class EventMapper {
                event.getPaid(),
                event.getTitle(),
                0L,
-                new ArrayList<>(),
+               0L,
+               new ArrayList<>(),
                event.getCreated().toString(),
                event.getDescription(),
                location,
@@ -99,21 +100,20 @@ public class EventMapper {
                 event.getPaid(),
                 event.getTitle(),
                 0L,
-                new ArrayList<>()
+                0L
         );
     }
 
     public static List<EventShortDto> toEventShortDtoList(
             List<Event> events,
             HashMap<Long, Long> views,
-            HashMap<Long, List<Comment>> commentsByEvent) {
+            HashMap<Long, Long> commentsCountByEvent) {
         List<EventShortDto> list = new ArrayList<>();
         for (Event event : events) {
             EventShortDto eventShortDto = toEventShortDto(event);
             eventShortDto.setViews(views.get(eventShortDto.getId()));
-            List<CommentDto> commentDtoList
-                    = CommentMapper.toListCommentDto(commentsByEvent.get(event.getId()));
-            eventShortDto.setComments(commentDtoList);
+            Long commentCount = commentsCountByEvent.get(event.getId());
+            eventShortDto.setCommentsCount(commentCount);
             list.add(eventShortDto);
         }
         return list;
@@ -122,11 +122,13 @@ public class EventMapper {
     public static List<EventFullDto> toEventFulltDtoList(
             List<Event> events,
             HashMap<Long, Long> views,
-            HashMap<Long, List<Comment>> commentsByEvent) {
+            HashMap<Long, List<Comment>> commentsByEvent,
+            HashMap<Long, Long> commentsCountByEvent) {
         List<EventFullDto> list = new ArrayList<>();
         for (Event event : events) {
             EventFullDto eventFullDto = toEventFullDto(event);
             eventFullDto.setViews(views.get(eventFullDto.getId()));
+            eventFullDto.setCommentsCount(commentsCountByEvent.get(event.getId()));
             List<CommentDto> commentDtoList
                     = CommentMapper.toListCommentDto(commentsByEvent.get(event.getId()));
             eventFullDto.setComments(commentDtoList);

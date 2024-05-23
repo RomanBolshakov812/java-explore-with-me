@@ -1,5 +1,10 @@
 package ru.practicum.comment;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import javax.persistence.EntityNotFoundException;
+import javax.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,11 +18,6 @@ import ru.practicum.event.model.Event;
 import ru.practicum.event.model.State;
 import ru.practicum.user.UserRepository;
 import ru.practicum.user.model.User;
-import javax.persistence.EntityNotFoundException;
-import javax.validation.ValidationException;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor

@@ -1,13 +1,13 @@
 package ru.practicum.comment.controller;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.comment.CommentService;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Positive;
 
 @Validated
 @RestController

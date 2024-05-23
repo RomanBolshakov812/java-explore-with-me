@@ -2,10 +2,7 @@ package ru.practicum.event;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ValidationException;
@@ -22,13 +19,12 @@ import ru.practicum.category.CategoryRepository;
 import ru.practicum.category.model.Category;
 import ru.practicum.client.StatsClient;
 import ru.practicum.comment.CommentRepository;
-import ru.practicum.error.exception.IncorrectRequestParametersException;
 import ru.practicum.comment.dto.CommentDto;
-import ru.practicum.comment.dto.NewCommentDto;
-import ru.practicum.event.dto.*;
 import ru.practicum.comment.manner.CommentMapper;
-import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.comment.model.Comment;
+import ru.practicum.error.exception.IncorrectRequestParametersException;
+import ru.practicum.event.dto.*;
+import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.State;
 import ru.practicum.event.model.StateAction;
@@ -36,7 +32,7 @@ import ru.practicum.event.specification.EventFilter;
 import ru.practicum.event.specification.EventSpecification;
 import ru.practicum.user.UserRepository;
 import ru.practicum.user.model.User;
-import ru.practicum.util.CommentAdder;
+import ru.practicum.util.CommentListMaker;
 import ru.practicum.util.PageMaker;
 import ru.practicum.util.ViewGetter;
 
@@ -75,8 +71,9 @@ public class EventServiceImpl implements EventService {
         HashMap<Long, Long> views = ViewGetter.getViews(statsClient, events,
                 null, null);
         List<Comment> allComments = getComments(events);
-        return EventMapper.toEventShortDtoList(events, views,
-                CommentAdder.addCommentsOfEventDto(events, allComments));
+        HashMap<Long, Long> commentsCountByEvent = CommentListMaker.getCommentsCountByEvent(events,
+                allComments);
+        return EventMapper.toEventShortDtoList(events, views, commentsCountByEvent);
     }
 
     // Получение полной информации о событии, добавленной текущим пользователем
@@ -89,7 +86,11 @@ public class EventServiceImpl implements EventService {
                     + " no added events with id=" + eventId + "!");
         }
         EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
-        eventFullDto.setComments(getCommentsByCurrentEvent(eventId));
+        eventFullDto.setViews(ViewGetter.getViews(statsClient, List.of(event), null, null)
+                .get(eventId));
+        List<CommentDto> comments = getCommentsByCurrentEvent(eventId);
+        eventFullDto.setCommentsCount((long) comments.size());
+        eventFullDto.setComments(comments);
         return eventFullDto;
     }
 
@@ -175,8 +176,12 @@ public class EventServiceImpl implements EventService {
         HashMap<Long, Long> views = ViewGetter.getViews(statsClient, eventList,
                 filter.getRangeStart(), filter.getRangeEnd());
         List<Comment> allComments = getComments(eventList);
-        return EventMapper.toEventFulltDtoList(eventList, views,
-                CommentAdder.addCommentsOfEventDto(eventList, allComments));
+        HashMap<Long, List<Comment>> commentsByEvent = CommentListMaker
+                .getCommentsListByEvent(eventList, allComments);
+        HashMap<Long, Long> commentsCountByEvent = CommentListMaker
+                .getCommentsCountByEvent(eventList, allComments);
+        return EventMapper.toEventFulltDtoList(eventList, views, commentsByEvent,
+                commentsCountByEvent);
     }
 
     // Получение событий с возможностью фильтрации
@@ -206,8 +211,9 @@ public class EventServiceImpl implements EventService {
         HashMap<Long, Long> views = ViewGetter.getViews(statsClient, eventList,
                 filter.getRangeStart(), filter.getRangeEnd());
         List<Comment> allComments = getComments(eventList);
-        return EventMapper.toEventShortDtoList(eventList, views,
-                CommentAdder.addCommentsOfEventDto(eventList, allComments));
+        HashMap<Long, Long> commentsCountByEvent = CommentListMaker
+                .getCommentsCountByEvent(eventList, allComments);
+        return EventMapper.toEventShortDtoList(eventList, views, commentsCountByEvent);
     }
 
     //Получение подробной информации об опубликованном событии по его идентификатору
@@ -232,7 +238,9 @@ public class EventServiceImpl implements EventService {
         }
         EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
         eventFullDto.setViews(views);
-        eventFullDto.setComments(getCommentsByCurrentEvent(eventId));
+        List<CommentDto> comments = getCommentsByCurrentEvent(eventId);
+        eventFullDto.setCommentsCount(((long) comments.size()));
+        eventFullDto.setComments(comments);
         return eventFullDto;
     }
 

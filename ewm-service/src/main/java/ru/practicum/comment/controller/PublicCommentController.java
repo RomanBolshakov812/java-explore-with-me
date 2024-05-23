@@ -1,5 +1,7 @@
 package ru.practicum.comment.controller;
 
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -8,8 +10,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.comment.CommentService;
 import ru.practicum.comment.dto.CommentDto;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 @Validated
 @RestController

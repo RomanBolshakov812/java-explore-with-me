@@ -37,13 +37,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/users/3/events/2/comments",
+					"raw": "http://localhost:8080/comments/users/3/events/2/comments",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"comments",
 						"users",
 						"3",
 						"events",
@@ -85,13 +86,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/users/1/events/2/comments",
+					"raw": "http://localhost:8080/comments/users/1/events/2/comments",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"comments",
 						"users",
 						"1",
 						"events",
@@ -133,13 +135,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/users/1/events/2/comments",
+					"raw": "http://localhost:8080/comments/users/1/events/2/comments",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"comments",
 						"users",
 						"1",
 						"events",
@@ -181,13 +184,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/users/1/events/2/comments",
+					"raw": "http://localhost:8080/comments/users/1/events/2/comments",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"comments",
 						"users",
 						"1",
 						"events",
@@ -244,13 +248,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/users/1/events/2/comments",
+					"raw": "http://localhost:8080/comments/users/1/events/2/comments",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"comments",
 						"users",
 						"1",
 						"events",
@@ -297,14 +302,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/events/comments/1",
+					"raw": "http://localhost:8080/comments/1",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"events",
 						"comments",
 						"1"
 					]
@@ -343,13 +347,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/users/1/events/2/comments",
+					"raw": "http://localhost:8080/comments/users/1/events/2/comments",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"comments",
 						"users",
 						"1",
 						"events",
@@ -406,13 +411,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/users/1/events/2/comments/1",
+					"raw": "http://localhost:8080/comments/users/1/events/2/comments/1",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"comments",
 						"users",
 						"1",
 						"events",
@@ -470,13 +476,14 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:8080/users/2/events/2/comments",
+					"raw": "http://localhost:8080/comments/users/2/events/2/comments",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"comments",
 						"users",
 						"2",
 						"events",
@@ -523,14 +530,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/events/comments/2",
+					"raw": "http://localhost:8080/comments/2",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"events",
 						"comments",
 						"2"
 					]
@@ -553,7 +559,7 @@
 							"\r",
 							"const target = pm.response.json();\r",
 							"\r",
-							"pm.test(\"Событие должно содержать поля: id, title, annotation, category, paid, eventDate, initiator, views, confirmedRequests, description, participantLimit, state, createdOn, publishedOn, location, requestModeration\", function () {\r",
+							"pm.test(\"Событие должно содержать поля: id, title, annotation, category, paid, eventDate, initiator, views, commentsCount, comments, confirmedRequests, description, participantLimit, state, createdOn, publishedOn, location, requestModeration\", function () {\r",
 							"pm.expect(target).to.have.property('id');\r",
 							"pm.expect(target).to.have.property('title');\r",
 							"pm.expect(target).to.have.property('annotation');\r",
@@ -572,6 +578,7 @@
 							"pm.expect(target).to.have.property('location');\r",
 							"pm.expect(target).to.have.property('requestModeration');\r",
 							"pm.expect(target).to.have.property('views');\r",
+							"pm.expect(target).to.have.property('commentsCount');\r",
 							"pm.expect(target).to.have.property('comments');\r",
 							"});\r",
 							"\r",
@@ -630,13 +637,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/events/2/comments",
+					"raw": "http://localhost:8080/comments/events/2/comments",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"comments",
 						"events",
 						"2",
 						"comments"
@@ -665,16 +673,16 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/users/1/events/comments/1",
+					"raw": "http://localhost:8080/comments/users/1/comments/1",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"comments",
 						"users",
 						"1",
-						"events",
 						"comments",
 						"1"
 					]
@@ -704,14 +712,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/events/comments/1",
+					"raw": "http://localhost:8080/comments/1",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
-						"events",
 						"comments",
 						"1"
 					]
@@ -734,7 +741,7 @@
 							"\r",
 							"const target = pm.response.json();\r",
 							"\r",
-							"pm.test(\"Событие должно содержать поля: id, title, annotation, category, paid, eventDate, initiator, views, confirmedRequests, description, participantLimit, state, createdOn, publishedOn, location, requestModeration\", function () {\r",
+							"pm.test(\"Событие должно содержать поля: id, title, annotation, category, paid, eventDate, initiator, views, commentScount, comments, confirmedRequests, description, participantLimit, state, createdOn, publishedOn, location, requestModeration\", function () {\r",
 							"pm.expect(target).to.have.property('id');\r",
 							"pm.expect(target).to.have.property('title');\r",
 							"pm.expect(target).to.have.property('annotation');\r",
@@ -753,6 +760,7 @@
 							"pm.expect(target).to.have.property('location');\r",
 							"pm.expect(target).to.have.property('requestModeration');\r",
 							"pm.expect(target).to.have.property('views');\r",
+							"pm.expect(target).to.have.property('commentsCount');\r",
 							"pm.expect(target).to.have.property('comments');\r",
 							"});\r",
 							"\r",
@@ -811,13 +819,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/events/2/comments",
+					"raw": "http://localhost:8080/comments/events/2/comments",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"comments",
 						"events",
 						"2",
 						"comments"
@@ -846,15 +855,15 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/admin/events/comments/2",
+					"raw": "http://localhost:8080/comments/admin/comments/2",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"comments",
 						"admin",
-						"events",
 						"comments",
 						"2"
 					]
@@ -890,13 +899,14 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:8080/events/2/comments",
+					"raw": "http://localhost:8080/comments/events/2/comments",
 					"protocol": "http",
 					"host": [
 						"localhost"
 					],
 					"port": "8080",
 					"path": [
+						"comments",
 						"events",
 						"2",
 						"comments"

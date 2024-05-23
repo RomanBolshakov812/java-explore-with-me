@@ -7,18 +7,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.client.StatsClient;
+import ru.practicum.comment.CommentRepository;
+import ru.practicum.comment.model.Comment;
 import ru.practicum.compilation.dto.CompilationDto;
 import ru.practicum.compilation.dto.NewCompilationDto;
 import ru.practicum.compilation.dto.UpdateCompilationRequest;
 import ru.practicum.compilation.mapper.CompilationMapper;
 import ru.practicum.compilation.model.Compilation;
-import ru.practicum.comment.CommentRepository;
 import ru.practicum.event.EventRepository;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.mapper.EventMapper;
-import ru.practicum.comment.model.Comment;
 import ru.practicum.event.model.Event;
-import ru.practicum.util.CommentAdder;
+import ru.practicum.util.CommentListMaker;
 import ru.practicum.util.PageMaker;
 import ru.practicum.util.ViewGetter;
 
@@ -41,10 +41,12 @@ public class CompilationServiceImpl implements CompilationService {
             HashMap<Long, Long> views
                     = ViewGetter.getViews(statsClient, events, null, null);
             List<Comment> allComments = getComments(events);
+            HashMap<Long, Long> commentsCountByEvent = CommentListMaker
+                    .getCommentsCountByEvent(events, allComments);
             eventShortDtoList = EventMapper.toEventShortDtoList(
                     events,
                     views,
-                    CommentAdder.addCommentsOfEventDto(events, allComments));
+                    commentsCountByEvent);
         }
         if (newCompilationDto.getPinned() == null) {
             newCompilationDto.setPinned(false);
@@ -137,10 +139,12 @@ public class CompilationServiceImpl implements CompilationService {
                                                       HashMap<Long, Long> views,
                                                       List<Comment> comments) {
         List<EventShortDto> eventShortDtoList;
+        HashMap<Long, Long> commentsCountByEvent = CommentListMaker.getCommentsCountByEvent(events,
+                comments);
         eventShortDtoList = EventMapper.toEventShortDtoList(
                 events,
                 views,
-                CommentAdder.addCommentsOfEventDto(events, comments));
+                commentsCountByEvent);
         return eventShortDtoList;
     }
 

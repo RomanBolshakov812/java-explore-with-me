@@ -6,7 +6,7 @@ import java.util.List;
 import ru.practicum.compilation.dto.CompilationDto;
 import ru.practicum.compilation.dto.NewCompilationDto;
 import ru.practicum.compilation.model.Compilation;
-import ru.practicum.event.dto_event.EventShortDto;
+import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.model.Event;
 
 public class CompilationMapper {

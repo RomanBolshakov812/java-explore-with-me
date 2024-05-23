@@ -11,8 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.event.EventService;
-import ru.practicum.event.dto_event.EventFullDto;
-import ru.practicum.event.dto_event.UpdateEventAdminRequest;
+import ru.practicum.event.dto.EventFullDto;
+import ru.practicum.event.dto.UpdateEventAdminRequest;
 import ru.practicum.event.model.State;
 import ru.practicum.event.specification.EventFilter;
 
@@ -53,12 +53,5 @@ public class AdminEventController {
             @RequestBody @Valid UpdateEventAdminRequest updateEventAdminRequest,
             @PathVariable("eventId") @NonNull @Positive Long eventId) {
         return eventService.updateEventByAdmin(updateEventAdminRequest, eventId);
-    }
-
-    // Удаление комментария админом
-    @DeleteMapping("/comments/{commentId}")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public void deleteComment(@PathVariable("commentId") @NotNull @Positive Long commentId) {
-        eventService.deleteCommentByAdmin(commentId);
     }
 }

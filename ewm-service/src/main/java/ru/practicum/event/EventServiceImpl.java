@@ -21,13 +21,14 @@ import ru.practicum.ViewStats;
 import ru.practicum.category.CategoryRepository;
 import ru.practicum.category.model.Category;
 import ru.practicum.client.StatsClient;
+import ru.practicum.comment.CommentRepository;
 import ru.practicum.error.exception.IncorrectRequestParametersException;
-import ru.practicum.event.dto_comment.CommentDto;
-import ru.practicum.event.dto_comment.NewCommentDto;
-import ru.practicum.event.dto_event.*;
-import ru.practicum.event.mapper.CommentMapper;
+import ru.practicum.comment.dto.CommentDto;
+import ru.practicum.comment.dto.NewCommentDto;
+import ru.practicum.event.dto.*;
+import ru.practicum.comment.manner.CommentMapper;
 import ru.practicum.event.mapper.EventMapper;
-import ru.practicum.event.model.Comment;
+import ru.practicum.comment.model.Comment;
 import ru.practicum.event.model.Event;
 import ru.practicum.event.model.State;
 import ru.practicum.event.model.StateAction;
@@ -235,70 +236,6 @@ public class EventServiceImpl implements EventService {
         return eventFullDto;
     }
 
-    // Добавление комментария
-    @Override
-    public CommentDto addComment(NewCommentDto newCommentDto, Long authorId, Long eventId) {
-        if (commentRepository.findByAuthorIdAndEventId(authorId, eventId) != null) {
-            throw new IncorrectRequestParametersException("This comment already exists");
-        }
-        Event event = getEventIfExist(eventId);
-        if (event.getInitiator().getId().equals(authorId)) {
-            throw new IncorrectRequestParametersException("Еhe initiator of the event "
-                    + "cannot comment on it");
-        }
-        User author = getUserIfExist(authorId);
-        LocalDateTime created = LocalDateTime.now();
-        Comment comment = CommentMapper.toComment(newCommentDto, event, author, created);
-        commentRepository.save(comment);
-        return CommentMapper.toCommentDto(comment);
-    }
-
-    // Обновление комментария
-    @Override
-    public CommentDto updateComment(NewCommentDto newCommentDto,
-                                    Long userId, Long eventId, Long commentId) {
-        Comment comment = getCommentIfExist(commentId);
-        getUserIfExist(userId);
-        getEventIfExist(eventId);
-        isCommentByAuthor(comment.getAuthor().getId(), userId);
-        comment.setText(newCommentDto.getText());
-        commentRepository.save(comment);
-        return CommentMapper.toCommentDto(comment);
-    }
-
-    // Удаление комментария админом
-    @Override
-    public void deleteCommentByAdmin(Long commentId) {
-        getCommentIfExist(commentId);
-        commentRepository.deleteById(commentId);
-    }
-
-    // Удаление комментария автором
-    @Override
-    public void deleteCommentByCurrentUser(Long userId, Long commentId) {
-        Comment comment = getCommentIfExist(commentId);
-        isCommentByAuthor(comment.getAuthor().getId(), userId);
-        commentRepository.deleteById(commentId);
-    }
-
-    // Получение комментария по id
-    @Override
-    @Transactional(readOnly = true)
-    public CommentDto getCommentById(Long commentId) {
-        return CommentMapper.toCommentDto(getCommentIfExist(commentId));
-    }
-
-    // Получение всех комментариев события по id события
-    @Override
-    @Transactional(readOnly = true)
-    public List<CommentDto> getCommentsByEvent(Long eventId) {
-        Event event = getEventIfExist(eventId);
-        if (!event.getState().equals(State.PUBLISHED)) {
-            throw new EntityNotFoundException("Event with id=" + eventId  + " was not found");
-        }
-        return getCommentsByCurrentEvent(eventId);
-    }
-
     private Event getEventIfExist(Long eventId) {
         return eventRepository.findById(eventId).orElseThrow(() ->
                 new EntityNotFoundException("Event with id=" + eventId  + " was not found"));
@@ -307,17 +244,6 @@ public class EventServiceImpl implements EventService {
     private User getUserIfExist(Long userId) {
         return userRepository.findById(userId).orElseThrow(() ->
                 new EntityNotFoundException("User with id=" + userId  + " was not found"));
-    }
-
-    private Comment getCommentIfExist(Long commentId) {
-        return commentRepository.findById(commentId).orElseThrow(() ->
-                new EntityNotFoundException("Comment with id=" + commentId  + " was not found"));
-    }
-
-    private void isCommentByAuthor(Long authorId, Long userId) {
-        if (!Objects.equals(authorId, userId)) {
-            throw new ValidationException("User c id=" + userId + " not the author of the comment");
-        }
     }
 
     private void isValidTimestamp(LocalDateTime timestamp, Integer timeLag) {

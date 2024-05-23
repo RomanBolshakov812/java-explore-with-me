@@ -10,9 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.event.EventService;
-import ru.practicum.event.dto_comment.CommentDto;
-import ru.practicum.event.dto_comment.NewCommentDto;
-import ru.practicum.event.dto_event.*;
+import ru.practicum.event.dto.*;
 import ru.practicum.request.RequestService;
 import ru.practicum.request.dto.ParticipationRequestDto;
 
@@ -82,30 +80,5 @@ public class UserEventController {
                 eventRequestStatusUpdateRequest,
                 userId,
                 eventId);
-    }
-
-    // Добавление комментария
-    @PostMapping("/{eventId}/comments")
-    public CommentDto addComment(@RequestBody @Valid NewCommentDto newCommentDto,
-                                 @PathVariable("userId") @NonNull Long userId,
-                                 @PathVariable("eventId") @NonNull Long eventId) {
-        return eventService.addComment(newCommentDto, userId, eventId);
-    }
-
-    // Обновление комментария
-    @PatchMapping("/{eventId}/comments/{commentId}")
-    public CommentDto updateComment(@RequestBody @Valid NewCommentDto newCommentDto,
-                                    @PathVariable("userId") @NonNull Long userId,
-                                    @PathVariable("eventId") @NonNull Long eventId,
-                                    @PathVariable("commentId") @NotNull Long commentId) {
-        return eventService.updateComment(newCommentDto, userId, eventId, commentId);
-    }
-
-    // Удаление комментария автором
-    @DeleteMapping("/comments/{commentId}")
-    @ResponseStatus(code = HttpStatus.NO_CONTENT)
-    public void deleteComment(@PathVariable("userId") @NonNull @Positive Long userId,
-                              @PathVariable("commentId") @NotNull @Positive Long commentId) {
-        eventService.deleteCommentByCurrentUser(userId, commentId);
     }
 }

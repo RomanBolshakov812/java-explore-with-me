@@ -1,4 +1,4 @@
-package ru.practicum.event.dto_event;
+package ru.practicum.event.dto;
 
 import javax.validation.constraints.*;
 import lombok.AllArgsConstructor;

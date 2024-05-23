@@ -1,4 +1,4 @@
-package ru.practicum.event.dto_event;
+package ru.practicum.event.dto;
 
 import java.util.List;
 import lombok.Getter;

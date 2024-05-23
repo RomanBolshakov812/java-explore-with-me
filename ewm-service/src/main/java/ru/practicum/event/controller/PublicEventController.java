@@ -15,9 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.event.EventService;
-import ru.practicum.event.dto_comment.CommentDto;
-import ru.practicum.event.dto_event.EventFullDto;
-import ru.practicum.event.dto_event.EventShortDto;
+import ru.practicum.event.dto.EventFullDto;
+import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.model.State;
 import ru.practicum.event.specification.EventFilter;
 
@@ -71,21 +70,5 @@ public class PublicEventController {
             @PathVariable("id") @NonNull Long id,
             HttpServletRequest request) {
         return eventService.getEventById(id, request);
-    }
-
-    // Получение комментария по его id
-    @GetMapping("/comments/{commentId}")
-    @ResponseStatus(code = HttpStatus.OK)
-    public CommentDto getCommentsById(
-            @PathVariable("commentId") @NonNull Long commentId) {
-        return eventService.getCommentById(commentId);
-    }
-
-    // Получение всех комментов события по id события
-    @GetMapping("/{eventId}/comments")
-    @ResponseStatus(code = HttpStatus.OK)
-    public List<CommentDto> getCommentsByEvent(
-            @PathVariable("eventId") @NonNull Long eventId) {
-        return eventService.getCommentsByEvent(eventId);
     }
 }

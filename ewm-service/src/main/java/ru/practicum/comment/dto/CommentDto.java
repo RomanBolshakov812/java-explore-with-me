@@ -1,4 +1,4 @@
-package ru.practicum.event.dto_comment;
+package ru.practicum.comment.dto;
 
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;

@@ -2,9 +2,9 @@ package ru.practicum.event;
 
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import ru.practicum.event.dto_comment.CommentDto;
-import ru.practicum.event.dto_comment.NewCommentDto;
-import ru.practicum.event.dto_event.*;
+import ru.practicum.comment.dto.CommentDto;
+import ru.practicum.comment.dto.NewCommentDto;
+import ru.practicum.event.dto.*;
 import ru.practicum.event.specification.EventFilter;
 
 public interface EventService {
@@ -25,18 +25,4 @@ public interface EventService {
     List<EventShortDto> publicSearchEventsByFilter(EventFilter filter, HttpServletRequest request,
                                                    String sort, Integer from, Integer size);
 
-    EventFullDto getEventById(Long id, HttpServletRequest request);
-
-    CommentDto addComment(NewCommentDto newCommentDto, Long userId, Long eventId);
-
-    CommentDto updateComment(NewCommentDto newCommentDto,
-                             Long userId, Long eventId, Long commentId);
-
-    void deleteCommentByAdmin(Long commentId);
-
-    void deleteCommentByCurrentUser(Long userId, Long commentId);
-
-    CommentDto getCommentById(Long commentId);
-
-    List<CommentDto> getCommentsByEvent(Long eventId);
-}
+    EventFullDto getEventById(Long id, HttpServletRequest request);}

@@ -3,7 +3,7 @@ package ru.practicum.util;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import ru.practicum.event.model.Comment;
+import ru.practicum.comment.model.Comment;
 import ru.practicum.event.model.Event;
 
 public class CommentAdder {

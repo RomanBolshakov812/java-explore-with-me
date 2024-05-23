@@ -1,11 +1,11 @@
-package ru.practicum.event.mapper;
+package ru.practicum.comment.manner;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import ru.practicum.event.dto_comment.CommentDto;
-import ru.practicum.event.dto_comment.NewCommentDto;
-import ru.practicum.event.model.Comment;
+import ru.practicum.comment.dto.CommentDto;
+import ru.practicum.comment.dto.NewCommentDto;
+import ru.practicum.comment.model.Comment;
 import ru.practicum.event.model.Event;
 import ru.practicum.user.model.User;
 

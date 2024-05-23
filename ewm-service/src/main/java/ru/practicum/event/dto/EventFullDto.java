@@ -1,9 +1,9 @@
-package ru.practicum.event.dto_event;
+package ru.practicum.event.dto;
 
 import java.util.List;
 import lombok.*;
 import ru.practicum.category.dto.CategoryDto;
-import ru.practicum.event.dto_comment.CommentDto;
+import ru.practicum.comment.dto.CommentDto;
 import ru.practicum.event.model.Location;
 import ru.practicum.user.dto.UserShortDto;
 

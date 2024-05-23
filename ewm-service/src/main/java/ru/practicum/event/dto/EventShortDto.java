@@ -1,4 +1,4 @@
-package ru.practicum.event.dto_event;
+package ru.practicum.event.dto;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.category.dto.CategoryDto;
-import ru.practicum.event.dto_comment.CommentDto;
+import ru.practicum.comment.dto.CommentDto;
 import ru.practicum.user.dto.UserShortDto;
 
 @Getter

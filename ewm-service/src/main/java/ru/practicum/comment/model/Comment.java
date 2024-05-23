@@ -1,4 +1,4 @@
-package ru.practicum.event.model;
+package ru.practicum.comment.model;
 
 import java.time.LocalDateTime;
 import javax.persistence.*;
@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import ru.practicum.event.model.Event;
 import ru.practicum.user.model.User;
 
 @Getter

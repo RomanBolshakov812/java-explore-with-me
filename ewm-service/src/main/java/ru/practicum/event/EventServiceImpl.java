@@ -2,9 +2,7 @@ package ru.practicum.event;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import javax.persistence.EntityNotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.ValidationException;
@@ -20,6 +18,10 @@ import ru.practicum.ViewStats;
 import ru.practicum.category.CategoryRepository;
 import ru.practicum.category.model.Category;
 import ru.practicum.client.StatsClient;
+import ru.practicum.comment.CommentRepository;
+import ru.practicum.comment.dto.CommentDto;
+import ru.practicum.comment.manner.CommentMapper;
+import ru.practicum.comment.model.Comment;
 import ru.practicum.error.exception.IncorrectRequestParametersException;
 import ru.practicum.event.dto.*;
 import ru.practicum.event.mapper.EventMapper;
@@ -30,6 +32,7 @@ import ru.practicum.event.specification.EventFilter;
 import ru.practicum.event.specification.EventSpecification;
 import ru.practicum.user.UserRepository;
 import ru.practicum.user.model.User;
+import ru.practicum.util.CommentListMaker;
 import ru.practicum.util.PageMaker;
 import ru.practicum.util.ViewGetter;
 
@@ -41,6 +44,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
     private static  final DateTimeFormatter DATE_TIME_FORMATTER
             = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final EventSpecification eventSpecification;
@@ -50,8 +54,7 @@ public class EventServiceImpl implements EventService {
         Long catId = newEventDto.getCategory();
         Category category = categoryRepository.findById(catId).orElseThrow(() ->
                 new EntityNotFoundException("Category with id=" + catId  + " was not found"));
-        User initiator = userRepository.findById(userId).orElseThrow(() ->
-                new EntityNotFoundException("User with id=" + userId + " was not found"));
+        User initiator = getUserIfExist(userId);
         Event event = EventMapper.toEvent(newEventDto, category, initiator);
         isValidTimestamp(event.getEventDate(), 2);
         eventRepository.save(event);
@@ -63,26 +66,32 @@ public class EventServiceImpl implements EventService {
     @Transactional(readOnly = true)
     public List<EventShortDto> getEventsByUser(Long initiatorId, Integer from, Integer size) {
         Pageable page = PageMaker.toPage(from, size);
-        userRepository.findById(initiatorId).orElseThrow(() ->
-                new EntityNotFoundException("User with id=" + initiatorId + " was not found"));
+        getUserIfExist(initiatorId);
         List<Event> events = eventRepository.findEventsByInitiatorId(initiatorId, page).toList();
         HashMap<Long, Long> views = ViewGetter.getViews(statsClient, events,
                 null, null);
-        return EventMapper.toEventShortDtoList(events, views);
+        List<Comment> allComments = getComments(events);
+        HashMap<Long, Long> commentsCountByEvent = CommentListMaker.getCommentsCountByEvent(events,
+                allComments);
+        return EventMapper.toEventShortDtoList(events, views, commentsCountByEvent);
     }
 
     // Получение полной информации о событии, добавленной текущим пользователем
     @Override
     @Transactional(readOnly = true)
     public EventFullDto getEventByCurrentUser(Long userId, Long eventId) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() ->
-                new EntityNotFoundException("Event with id=" + eventId  + " was not found"));
-        if (Objects.equals(event.getInitiator().getId(), userId)) {
-            return EventMapper.toEventFullDto(event);
-        } else {
+        Event event = getEventIfExist(eventId);
+        if (!Objects.equals(event.getInitiator().getId(), userId)) {
             throw new IncorrectRequestParametersException("User with id=" + userId
                     + " no added events with id=" + eventId + "!");
         }
+        EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
+        eventFullDto.setViews(ViewGetter.getViews(statsClient, List.of(event), null, null)
+                .get(eventId));
+        List<CommentDto> comments = getCommentsByCurrentEvent(eventId);
+        eventFullDto.setCommentsCount((long) comments.size());
+        eventFullDto.setComments(comments);
+        return eventFullDto;
     }
 
     // Изменение события, добавленного текущим пользователем
@@ -92,8 +101,7 @@ public class EventServiceImpl implements EventService {
             Long userId,
             Long eventId) {
         isValid(updateEventUserRequest);
-        Event currentEvent = eventRepository.findById(eventId).orElseThrow(() ->
-                new EntityNotFoundException("Event with id=" + eventId  + " was not found"));
+        Event currentEvent = getEventIfExist(eventId);
         // Проверка, что событие не PUBLISHED
         if (currentEvent.getState().equals(State.PUBLISHED)) {
             throw new IncorrectRequestParametersException("Only pending or canceled "
@@ -120,8 +128,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullDto updateEventByAdmin(UpdateEventAdminRequest updateEventAdminRequest,
                                            Long eventId) {
-        Event currentEvent = eventRepository.findById(eventId).orElseThrow(() ->
-                new EntityNotFoundException("Event with id=" + eventId  + " was not found"));
+        Event currentEvent = getEventIfExist(eventId);
         // Проверка, что событие PENDING
         if (!currentEvent.getState().equals(State.PENDING)) {
             throw new IncorrectRequestParametersException("Only pending events can be changed");
@@ -168,7 +175,13 @@ public class EventServiceImpl implements EventService {
         List<Event> eventList = eventRepository.findAll(specification, page).toList();
         HashMap<Long, Long> views = ViewGetter.getViews(statsClient, eventList,
                 filter.getRangeStart(), filter.getRangeEnd());
-        return EventMapper.toEventFulltDtoList(eventList, views);
+        List<Comment> allComments = getComments(eventList);
+        HashMap<Long, List<Comment>> commentsByEvent = CommentListMaker
+                .getCommentsListByEvent(eventList, allComments);
+        HashMap<Long, Long> commentsCountByEvent = CommentListMaker
+                .getCommentsCountByEvent(eventList, allComments);
+        return EventMapper.toEventFulltDtoList(eventList, views, commentsByEvent,
+                commentsCountByEvent);
     }
 
     // Получение событий с возможностью фильтрации
@@ -197,20 +210,19 @@ public class EventServiceImpl implements EventService {
         addHit(request);
         HashMap<Long, Long> views = ViewGetter.getViews(statsClient, eventList,
                 filter.getRangeStart(), filter.getRangeEnd());
-
-        return EventMapper.toEventShortDtoList(eventList, views);
+        List<Comment> allComments = getComments(eventList);
+        HashMap<Long, Long> commentsCountByEvent = CommentListMaker
+                .getCommentsCountByEvent(eventList, allComments);
+        return EventMapper.toEventShortDtoList(eventList, views, commentsCountByEvent);
     }
 
-    //Получение подробной информации об опубликованном событии по его идентификатору
+    // Получение подробной информации об опубликованном событии по его идентификатору
     @Override
     @Transactional(readOnly = true)
-    public EventFullDto getEventById(Long id, HttpServletRequest request) {
-        // Видимо нужно было сразу сделать поиск ивента по id, у которого state был бы PUBLISHED,
-        // но я так и не разобрался как работать с enum в запросе к базе
-        Event event = eventRepository.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("Event with id=" + id  + " was not found"));
+    public EventFullDto getEventById(Long eventId, HttpServletRequest request) {
+        Event event = getEventIfExist(eventId);
         if (!event.getState().equals(State.PUBLISHED)) {
-            throw new EntityNotFoundException("Event with id=" + id  + " was not found");
+            throw new EntityNotFoundException("Event with id=" + eventId  + " was not found");
         }
         addHit(request);
         List<ViewStats> viewStats = statsClient.getStats(
@@ -226,7 +238,20 @@ public class EventServiceImpl implements EventService {
         }
         EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
         eventFullDto.setViews(views);
+        List<CommentDto> comments = getCommentsByCurrentEvent(eventId);
+        eventFullDto.setCommentsCount(((long) comments.size()));
+        eventFullDto.setComments(comments);
         return eventFullDto;
+    }
+
+    private Event getEventIfExist(Long eventId) {
+        return eventRepository.findById(eventId).orElseThrow(() ->
+                new EntityNotFoundException("Event with id=" + eventId  + " was not found"));
+    }
+
+    private User getUserIfExist(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() ->
+                new EntityNotFoundException("User with id=" + userId  + " was not found"));
     }
 
     private void isValidTimestamp(LocalDateTime timestamp, Integer timeLag) {
@@ -271,7 +296,21 @@ public class EventServiceImpl implements EventService {
             currentEvent.setTitle(updateEventDto.getTitle());
         }
         eventRepository.save(currentEvent);
-        return EventMapper.toEventFullDto(currentEvent);
+        EventFullDto eventFullDto = EventMapper.toEventFullDto(currentEvent);
+        eventFullDto.setComments(getCommentsByCurrentEvent(currentEvent.getId()));
+        return eventFullDto;
+    }
+
+    private List<CommentDto> getCommentsByCurrentEvent(Long eventId) {
+        return CommentMapper.toListCommentDto(commentRepository.findAllByEventId(eventId));
+    }
+
+    private List<Comment> getComments(List<Event> events) {
+        List<Long> eventIds = new ArrayList<>();
+        for (Event event : events) {
+            eventIds.add(event.getId());
+        }
+        return commentRepository.findAllByEventIdIn(eventIds);
     }
 
     private void addHit(HttpServletRequest request) {

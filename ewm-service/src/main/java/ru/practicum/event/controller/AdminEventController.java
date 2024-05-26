@@ -2,9 +2,7 @@ package ru.practicum.event.controller;
 
 import java.util.List;
 import javax.validation.Valid;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.*;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.event.EventService;
-import ru.practicum.event.dto.*;
+import ru.practicum.event.dto.EventFullDto;
+import ru.practicum.event.dto.UpdateEventAdminRequest;
 import ru.practicum.event.model.State;
 import ru.practicum.event.specification.EventFilter;
 

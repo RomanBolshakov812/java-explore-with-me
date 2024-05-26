@@ -21,6 +21,7 @@ public class EventShortDto implements Comparable<EventShortDto> {
     private Boolean paid;
     private String title;
     private Long views;
+    private Long commentsCount;
 
     @Override
     public int compareTo(EventShortDto otherEventShortDto) {

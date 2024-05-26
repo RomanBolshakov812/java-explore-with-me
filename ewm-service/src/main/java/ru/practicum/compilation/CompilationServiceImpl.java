@@ -1,6 +1,5 @@
 package ru.practicum.compilation;
 
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import javax.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.client.StatsClient;
+import ru.practicum.comment.CommentRepository;
+import ru.practicum.comment.model.Comment;
 import ru.practicum.compilation.dto.CompilationDto;
 import ru.practicum.compilation.dto.NewCompilationDto;
 import ru.practicum.compilation.dto.UpdateCompilationRequest;
@@ -17,6 +18,7 @@ import ru.practicum.event.EventRepository;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.mapper.EventMapper;
 import ru.practicum.event.model.Event;
+import ru.practicum.util.CommentListMaker;
 import ru.practicum.util.PageMaker;
 import ru.practicum.util.ViewGetter;
 
@@ -28,8 +30,7 @@ public class CompilationServiceImpl implements CompilationService {
     private final StatsClient statsClient;
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
-    private static  final DateTimeFormatter DATE_TIME_FORMATTER
-            = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final CommentRepository commentRepository;
 
     @Override
     public CompilationDto addCompilation(NewCompilationDto newCompilationDto) {
@@ -39,7 +40,13 @@ public class CompilationServiceImpl implements CompilationService {
             events = eventRepository.findAllByIdIn(newCompilationDto.getEvents());
             HashMap<Long, Long> views
                     = ViewGetter.getViews(statsClient, events, null, null);
-            eventShortDtoList = EventMapper.toEventShortDtoList(events, views);
+            List<Comment> allComments = getComments(events);
+            HashMap<Long, Long> commentsCountByEvent = CommentListMaker
+                    .getCommentsCountByEvent(events, allComments);
+            eventShortDtoList = EventMapper.toEventShortDtoList(
+                    events,
+                    views,
+                    commentsCountByEvent);
         }
         if (newCompilationDto.getPinned() == null) {
             newCompilationDto.setPinned(false);
@@ -76,8 +83,9 @@ public class CompilationServiceImpl implements CompilationService {
         }
         HashMap<Long, Long> views =
                 ViewGetter.getViews(statsClient, compilation.getEvents(), null, null);
+        List<Comment> comments = getComments(compilation.getEvents());
         List<EventShortDto> eventShortDtoList =
-                getEventShortDtoList(compilation.getEvents(), views);
+                getEventShortDtoList(compilation.getEvents(), views, comments);
         compilationRepository.save(compilation);
         return CompilationMapper.toCompilationDto(compilation, eventShortDtoList);
     }
@@ -107,7 +115,8 @@ public class CompilationServiceImpl implements CompilationService {
             // Список шортов для каждой подборки
             HashMap<Long, List<EventShortDto>> eventShortDtoList = new HashMap<>();
             for (Compilation compilation : compilations) {
-                getEventShortDtoList(compilation.getEvents(), views);
+                List<Comment> allComments = getComments(compilation.getEvents());
+                getEventShortDtoList(compilation.getEvents(), views, allComments);
             }
             return CompilationMapper.toCompilationDtoList(compilations, eventShortDtoList);
         }
@@ -121,14 +130,29 @@ public class CompilationServiceImpl implements CompilationService {
                 new EntityNotFoundException("Compilation with id=" + compId + " was not found"));
         List<Event> events = compilation.getEvents();
         HashMap<Long, Long> views = ViewGetter.getViews(statsClient, events, null, null);
-        List<EventShortDto> eventShortDtoList = getEventShortDtoList(events, views);
+        List<Comment> comments = getComments(events);
+        List<EventShortDto> eventShortDtoList = getEventShortDtoList(events, views, comments);
         return CompilationMapper.toCompilationDto(compilation, eventShortDtoList);
     }
 
     private  List<EventShortDto> getEventShortDtoList(List<Event> events,
-                                                      HashMap<Long, Long> views) {
+                                                      HashMap<Long, Long> views,
+                                                      List<Comment> comments) {
         List<EventShortDto> eventShortDtoList;
-        eventShortDtoList = EventMapper.toEventShortDtoList(events, views);
+        HashMap<Long, Long> commentsCountByEvent = CommentListMaker.getCommentsCountByEvent(events,
+                comments);
+        eventShortDtoList = EventMapper.toEventShortDtoList(
+                events,
+                views,
+                commentsCountByEvent);
         return eventShortDtoList;
+    }
+
+    private List<Comment> getComments(List<Event> events) {
+        List<Long> eventIds = new ArrayList<>();
+        for (Event event : events) {
+            eventIds.add(event.getId());
+        }
+        return commentRepository.findAllByEventIdIn(eventIds);
     }
 }

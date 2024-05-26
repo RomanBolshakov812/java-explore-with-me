@@ -63,7 +63,7 @@ public class PublicEventController {
         return ResponseEntity.ok(events);
     }
 
-    //Получение подробной информации об опубликованном событии по его идентификатору
+    // Получение подробной информации об опубликованном событии по его идентификатору
     @GetMapping("/{id}")
     @ResponseStatus(code = HttpStatus.OK)
     public EventFullDto getEventById(
